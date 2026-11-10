@@ -248,6 +248,23 @@ button:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
 .pfh{display:block;color:#c9b88a;margin-bottom:6px}
 .pfin{width:100%;padding:10px;margin:8px 0 2px;border:2px solid #c9a24a;border-radius:8px;font-family:inherit;font-size:1.05em;text-align:center;background:#fff;color:#111}
 .pfmsg{min-height:1.3em;color:#ff9a8a;font-weight:700;margin-bottom:4px}
+
+.stab.s5{gap:4px;padding:8px 6px}
+.stab.s5 button{font-size:.78em;padding:9px 2px}
+.wh header .hb{display:flex;align-items:center}
+.rksb{display:flex;gap:6px;padding:4px 10px 8px}
+.rkin{flex:1;min-width:0;padding:10px;border:2px solid #bbb;border-radius:8px;font-family:inherit;font-size:1em;background:#fff;color:#111}
+.rksb button{padding:0 16px;border:0;border-radius:8px;background:#ff7a00;color:#fff;font-family:inherit;font-weight:700;cursor:pointer}
+.rk{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #e3e3e3;color:#111}
+.rk.me{background:#fff3c8}
+.rkn{min-width:34px;text-align:center;font-weight:700;color:#555}
+.rk.top1 .rkn{color:#d4a017;font-size:1.25em}.rk.top2 .rkn{color:#8a8a8a;font-size:1.15em}.rk.top3 .rkn{color:#b8733a;font-size:1.1em}
+.rkav{width:46px;height:46px;border-radius:50%;background:#ccc center/cover no-repeat;display:flex;align-items:center;justify-content:center;border:2px solid #c9a24a;flex:none;font-size:22px}
+.rkm{flex:1;min-width:0;display:flex;flex-direction:column;text-align:right}
+.rkm b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rkm small{color:#555}
+.rkb{width:40px;height:40px;border-radius:50%;border:0;background:#2a7ab8;color:#fff;font-size:1.2em;cursor:pointer;flex:none}
+.rkmsg{padding:24px 18px;text-align:center;color:#666}
 </style>
 <style>
 #auth{position:fixed;inset:0;z-index:9999;background:#1a140e;display:flex;align-items:center;justify-content:center;padding:18px;font-family:"Noto Naskh Arabic","Geeza Pro","Segoe UI",Tahoma,serif}
@@ -1470,6 +1487,76 @@ function profileInit(){
   $("av").onclick=profileScreen;
   drawProfile();
 }
+var RK={tab:"world",open:false,q:""};
+var RKTABS=[["comp","المسابقة"],["world","العالم"],["monster","الوحوش"],["tribe","القبيلة"],["friends","الأصدقاء"]];
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function rankRow(r,reload){
+  var d=document.createElement("div");
+  d.className="rk"+(r.is_me?" me":"")+(r.rank<=3?" top"+r.rank:"");
+  var ok=r.avatar&&/^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/.test(r.avatar);
+  d.innerHTML="<span class='rkn'>"+n(r.rank)+"</span><span class='rkav'"+(ok?" style=\"background-image:url('"+r.avatar+"')\"":"")+">"+(ok?"":"👤")+"</span><span class='rkm'><b>"+esc(r.name)+"</b><small>المستوى "+n(r.level)+" · 🪙 "+n(r.coins)+"</small></span>";
+  if(!r.is_me&&window.api){
+    var b=document.createElement("button");
+    b.className="rkb";b.textContent=r.is_friend?"✕":"＋";
+    b.setAttribute("aria-label",r.is_friend?"إزالة صديق":"إضافة صديق");
+    b.onclick=function(){
+      if(r.is_friend){
+        ask("إزالة "+esc(r.name)+" من أصدقائك؟","إزالة",function(){
+          window.api("remove_friend",{p_user:r.user_id}).then(function(){r.is_friend=false;toast("تمت إزالة الصديق");if(RK.tab==="friends")reload();else{b.textContent="＋"}}).catch(srvErr);
+        });
+      }else{
+        window.api("add_friend",{p_user:r.user_id}).then(function(){r.is_friend=true;b.textContent="✕";toast("تمت إضافة "+r.name+" إلى أصدقائك")}).catch(srvErr);
+      }
+    };
+    d.appendChild(b);
+  }
+  return d;
+}
+function rankLoad(){
+  var box=$("rklist");
+  if(!box)return;
+  var tab=RK.tab;
+  if(tab!=="world"&&tab!=="friends"){box.innerHTML="<div class='rkmsg'>هذا القسم قريبًا…</div>";return}
+  if(!window.api){
+    box.innerHTML="";
+    box.appendChild(rankRow({rank:1,name:(S.profile&&S.profile.name)||"أنت",avatar:S.profile&&S.profile.avatar,level:S.level||1,coins:S.coins,is_me:true,is_friend:false}));
+    var m=document.createElement("div");m.className="rkmsg";m.textContent="الترتيب العالمي والأصدقاء متاحان في النسخة الأونلاين.";box.appendChild(m);
+    return;
+  }
+  box.innerHTML="<div class='rkmsg'>جارٍ التحميل…</div>";
+  var myTab=tab,myQ=RK.q;
+  window.api("ranking",{p_scope:tab,p_query:RK.q||null,p_limit:30}).then(function(res){
+    if(RK.tab!==myTab||RK.q!==myQ||!$("rklist"))return;
+    var rows=(res&&res.rows)||[];
+    box.innerHTML="";
+    if(!rows.length){box.innerHTML="<div class='rkmsg'>"+(RK.q?"لا توجد نتائج لهذا البحث.":(tab==="friends"?"لا أصدقاء بعد. أضف أصدقاءك من تبويب العالم بزر ＋":"لا يوجد لاعبون بعد."))+"</div>";return}
+    rows.forEach(function(r){box.appendChild(rankRow(r,rankLoad))});
+  }).catch(function(e){if($("rklist"))box.innerHTML="<div class='rkmsg'>"+esc((e&&e.message)||"تعذّر التحميل")+"</div>"});
+}
+function rankScreen(tab){
+  if(tab)RK.tab=tab;
+  var w=$("wh"),isList=RK.tab==="world"||RK.tab==="friends";
+  var h="<header><span>الترتيب</span><span class='hb'><button id='rks' aria-label='بحث'>🔍</button><button id='whx' aria-label='إغلاق'>✕</button></span></header>";
+  h+="<div class='stab s5'>"+RKTABS.map(function(t){return "<button data-k='"+t[0]+"'"+(t[0]===RK.tab?" class='on'":"")+">"+t[1]+"</button>"}).join("")+"</div>";
+  if(RK.open&&isList)h+="<div class='rksb'><input id='rkq' class='rkin' maxlength='16' placeholder='"+(RK.tab==="friends"?"ابحث في أصدقائك":"ابحث في كل اللاعبين")+"'><button id='rkgo'>بحث</button></div>";
+  h+="<div id='rklist' class='rklist'></div>";
+  w.innerHTML=h;w.className="wh on";
+  $("whx").onclick=function(){w.className="wh"};
+  var bs=w.querySelectorAll(".stab button"),j;
+  for(j=0;j<bs.length;j++)bs[j].onclick=function(){RK.q="";rankScreen(this.getAttribute("data-k"))};
+  $("rks").onclick=function(){
+    if(!isList){toast("البحث غير متاح في هذا القسم");return}
+    RK.open=!RK.open;RK.q="";rankScreen();
+  };
+  if($("rkq")){
+    $("rkq").value=RK.q;
+    var go=function(){RK.q=$("rkq").value.trim();rankLoad()};
+    $("rkgo").onclick=go;
+    $("rkq").addEventListener("keydown",function(e){if(e.key==="Enter")go()});
+    $("rkq").focus();
+  }
+  rankLoad();
+}
 function weaponBuy(t){
   var W=WEAPONS[t],w=$("wh"),qty=1;
   w.innerHTML="<header><span>"+W.name+"</span><span>🪙 "+n(S.coins)+"</span><button id='whx' aria-label='إغلاق'>✕</button></header><div class='sec'>شراء "+W.name+"</div>"+
@@ -1676,7 +1763,7 @@ for(var q=0;q<sb.length;q++)(function(i){sb[i].onclick=function(){menu(i)}})(q);
 var db=document.querySelectorAll(".dock button");
 for(var q=0;q<db.length;q++)(function(b){b.onclick=function(){
   var nm=b.getAttribute("data-n");
-  if(nm==="الرئيسية"){$("wh").className="wh";closeM()}else if(nm==="مقتنياتي")invScreen();else if(nm==="المتجر")storeScreen("crew");else if(nm==="الأعداء")enemiesScreen();else toast(nm+" قريبًا…");
+  if(nm==="الرئيسية"){$("wh").className="wh";closeM()}else if(nm==="مقتنياتي")invScreen();else if(nm==="المتجر")storeScreen("crew");else if(nm==="الأعداء")enemiesScreen();else if(nm==="الترتيب")rankScreen();else toast(nm+" قريبًا…");
 }})(db[q]);
 </script>
 </body>
