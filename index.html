@@ -264,6 +264,7 @@ button:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
 .rkm b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rkm small{color:#555}
 .rk{cursor:pointer}
+.hfoot{margin-top:auto;padding:8px 0 10px}
 .rkc{color:#888;font-size:1.6em;flex:none}
 
 .rkmsg{padding:24px 18px;text-align:center;color:#666}
@@ -550,9 +551,9 @@ Object.keys(FISH).forEach(function(k){var kk=FISH[k].key;if(typeof S[kk]!=="numb
 if(!S.crew)S.crew=[];
 if(!S.weapons)S.weapons={};
 if(!S.bgs)S.bgs=[];
-if(!S.crewGiven){S.crew.push({t:"sailor",rem:86400000,ship:-1,since:0});S.crewGiven=true;save()}
-if(!S.guideGiven){for(var gi=0;gi<3;gi++)S.crew.push({t:"guide",rem:86400000,ship:-1,since:0});S.guideGiven=true;save()}
-if(!S.guardGiven){for(var gj=0;gj<2;gj++)S.crew.push({t:"guard",rem:86400000,ship:-1,since:0});S.guardGiven=true;save()}
+
+
+
 
 if(!S.ft)S.ft=(S.first||S.fish>0)?["سردين"]:[];
 if(!S.level)S.level=1;
@@ -572,6 +573,7 @@ function applyServer(st,soft){
   S.coins=Number(st.coins);S.level=st.level;S.first=!!st.first_trip;
   if(st.public_id!==undefined)S.pid=st.public_id;
   if(st.profile!==undefined){S.profile={name:(st.profile&&st.profile.name)||"",avatar:(st.profile&&st.profile.avatar)||""};if(typeof drawProfile==="function")drawProfile()}
+  if(st.crews!==undefined)S.crew=(st.crews||[]).map(function(c){return {id:c.id,t:c.crew,rem:Number(c.rem_ms),ship:c.slot,since:c.since_ms?Number(c.since_ms)-SRVOFF:0}}).filter(function(c){return typeof CREW==="undefined"||CREW[c.t]});
   if(st.weapons!==undefined)S.weapons=st.weapons||{};
   if(st.repairers!==undefined)S.rep=st.repairers||{};
   if(st.ruin_until_ms!==undefined){S.ruinUntil=st.ruin_until_ms?Number(st.ruin_until_ms)-SRVOFF:0;if(typeof applyBgCss==="function")applyBgCss()}
@@ -586,6 +588,7 @@ function applyServer(st,soft){
     if(sv.state==="fishing"){s.p="fishing";s.t=Number(sv.started_ms)-SRVOFF;s.ft=sv.fish}
     else{s.p="idle";s.t=0;s.ft=null}
     s.nx=sv.next_fish||null;
+    s.tdur=sv.trip_dur_ms?Number(sv.trip_dur_ms):0;s.tcap=sv.trip_cap?Number(sv.trip_cap):0;
   });
 }
 function syncNow(soft){
@@ -611,9 +614,9 @@ BOATS.forEach(function(B,i){
 });
 function place(i,p){els[i].b.style.left=p.x+"%";els[i].b.style.top=p.y+"%"}
 function ty(i){return TYPES[S.b[i].type||"small"]}
-function cap(i){return ty(i).cap*luckMult(i)}
-function luckMult(i){return 1}
-function dur(i){return ty(i).dur/boostOf(i)}
+function cap(i){var s=S.b[i];return (s.p!=="idle"&&s.tcap)?s.tcap:ty(i).cap*luckMult(i)}
+function luckMult(i){return S.crew.some(function(c){return c.ship===i&&c.t==="luck"})?2:1}
+function dur(i){var s=S.b[i];return (s.p!=="idle"&&s.tdur)?s.tdur:ty(i).dur/boostOf(i)}
 function remTxt(ms){var s=Math.max(0,Math.ceil(ms/1000)),hh=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;function z(v){return (v<10?"0":"")+v}return hh?hh+":"+z(m)+":"+z(x):z(m)+":"+z(x)}
 function left(i){return dur(i)-(Date.now()-S.b[i].t)}
 function render(){
@@ -728,8 +731,7 @@ function crewForShip(i){
     if(S.crew.some(function(c2){return c2.ship===i&&c2.t===t})){toast("لدى هذه السفينة "+C.name+" بالفعل");return}
     var f=S.crew.filter(function(c){return c.t===t&&c.ship===-1})[0];
     if(!f)return;
-    f.ship=i;f.since=Date.now();save();render();
-    toast("أُضيف "+C.name+" إلى السفينة");details(i);
+    window.api("assign_crew",{p_crew:t,p_slot:i}).then(function(st){applyServer(st);save();render();toast("أُضيف "+C.name+" إلى السفينة");details(i)}).catch(srvErr);
   };
 }
 function repForShip(i){
@@ -1029,7 +1031,7 @@ function trdTick(){
 }
 S.crew=S.crew.filter(function(c){return CREW[c.t]});
 function crewRem(c){return c.rem-(c.ship!==-1?Date.now()-c.since:0)}
-function boostOf(i){return 1}
+function boostOf(i){var b=1;S.crew.forEach(function(c){if(c.ship===i)b+=CREW[c.t].boost});return b}
 function crewTick(){
   var gone=false;
   S.crew=S.crew.filter(function(c){if(crewRem(c)<=0){gone=true;return false}return true});
@@ -1149,7 +1151,7 @@ function crewDetail(t){
   $("whx").onclick=function(){w.className="wh"};
   $("cbk").onclick=invScreen;
   if($("cas"))$("cas").onclick=function(){
-    if(C.solo){free[0].ship=-2;free[0].since=Date.now();save();render();crewDetail(t);toast("تم تعيين "+C.name)}
+    if(C.solo){window.api("assign_crew",{p_crew:t,p_slot:-2}).then(function(st){applyServer(st);save();render();crewDetail(t);toast("تم تعيين "+C.name)}).catch(srvErr)}
     else crewPick(S.crew.indexOf(free[0]));
   };
 }
@@ -1157,8 +1159,7 @@ function assignMerchant(after){
   if(merchantOn()){var m=S.crew.filter(function(c){return c.t==="merchant"&&c.ship!==-1})[0];toast("تاجر السمك معيّن بالفعل — متبقي "+hms(crewRem(m)));return}
   var f=S.crew.filter(function(c){return c.t==="merchant"&&c.ship===-1})[0];
   if(!f){toast("لا تملك تاجر سمك. تجده في المتجر");return}
-  f.ship=-2;f.since=Date.now();save();render();toast("تم تعيين تاجر السمك");
-  if(after)after();
+  window.api("assign_crew",{p_crew:"merchant",p_slot:-2}).then(function(st){applyServer(st);save();render();toast("تم تعيين تاجر السمك");if(after)after()}).catch(srvErr);
 }
 function crewPick(ci){
   var w=$("wh"),c=S.crew[ci],C=CREW[c.t],cnt=0,i,
@@ -1177,8 +1178,7 @@ function crewPick(ci){
   for(j=0;j<rs.length;j++)rs[j].onclick=function(){
     var k=+this.getAttribute("data-s");
     if(S.crew.some(function(c2){return c2.ship===k&&c2.t===c.t})){toast("لدى هذه السفينة "+C.name+" بالفعل");return}
-    c.ship=k;c.since=Date.now();save();render();crewDetail(c.t);
-    toast("أُضيف "+C.name+" إلى "+TYPES[S.b[k].type].name);
+    window.api("assign_crew",{p_crew:c.t,p_slot:k}).then(function(st){applyServer(st);save();render();crewDetail(c.t);toast("أُضيف "+C.name+" إلى "+TYPES[S.b[k].type].name)}).catch(srvErr);
   };
 }
 var STORETAB="crew";
@@ -1502,7 +1502,7 @@ function vMenu(slot){
   $("box").innerHTML="<h2>هل تود القيام بذلك؟</h2><button class='opt' id='vm1'>هجوم</button><button class='opt' id='vm2'>مساعدة الصديق</button><button class='opt' id='vm3'>تغيير الخلفية</button><button class='opt' id='vm4'>إلغاء</button>";
   $("modal").className="modal on";
   $("vm1").onclick=function(){closeM();vPick(slot)};
-  $("vm2").onclick=function(){closeM();toast("مساعدة الصديق قريبًا…")};
+  $("vm2").onclick=function(){closeM();vHelp(slot)};
   $("vm3").onclick=function(){closeM();toast("تغيير الخلفية قريبًا…")};
   $("vm4").onclick=closeM;
 }
@@ -1518,6 +1518,76 @@ function vPick(slot){
   $("pbk").onclick=renderVisit;
   var rs=w.querySelectorAll(".row[data-w]"),j;
   for(j=0;j<rs.length;j++)rs[j].onclick=function(){vFire(slot,this.getAttribute("data-w"))};
+}
+function vHelp(slot){
+  vStop();
+  var w=$("wh"),s=(V.ships||[])[slot];
+  if(!s||!s.owned){renderVisit();return}
+  var T=TYPES[s.type]||TYPES.small,mx=vMax(s),wr=s.hp<mx*0.1;
+  var cr=(s.crews||[]).map(function(c){var C=CREW[c.crew];return C?"<div class='ccard' style='cursor:default'><img src='"+C.img+"' alt=''><span>"+C.name+"</span></div>":""}).join("");
+  w.innerHTML="<header><span>تفاصيل السفينة</span><button id='whx' aria-label='إغلاق'>✕</button></header>"+
+    "<div class='sd'><div class='pic'><img src='"+(wr?WRECKIMG:T.img)+"' alt=''></div>"+
+    "<div class='ln'>الاسم: "+T.name+"</div>"+
+    "<div class='ln'>المالك: "+esc(V.name)+"</div>"+
+    "<div class='ln'>نقاط السفينة: "+n(s.hp)+" ("+n(mx)+")</div>"+
+    "<div class='ln'>القدرة: "+n(T.cap)+"</div></div>"+
+    "<div class='sec'>الطواقم المعيّنة</div>"+
+    (cr?"<div class='cgrid'>"+cr+"</div>":"<p class='empty'>لا طاقم على هذه السفينة.</p>")+
+    "<div class='hfoot'><button class='big pb' id='hcrew'>تخصيص طاقم</button><button class='big pb' id='hrep'>تعيين مصلح</button><button class='big' id='hbk'>رجوع</button></div>";
+  w.className="wh on";
+  $("whx").onclick=function(){w.className="wh"};
+  $("hbk").onclick=renderVisit;
+  $("hcrew").onclick=function(){helpCrewList(slot)};
+  $("hrep").onclick=function(){helpRepList(slot)};
+}
+function helpApply(res){
+  if(res&&res.target){V.ships=res.target.ships;V.ruin_until_ms=res.target.ruin_until_ms;V.off=Number(res.target.server_ms)-Date.now()}
+  applyServer(res);save();
+}
+function helpCrewList(slot){
+  var w=$("wh"),gr={},hh="<header><span>اختر الطاقم</span><button id='whx' aria-label='إغلاق'>✕</button></header><div class='sec'>أضف طاقمًا إلى سفينة "+esc(V.name)+"</div>";
+  var cur=((V.ships||[])[slot]||{}).crews||[];
+  (S.crew||[]).forEach(function(c){if(c.ship===-1&&CREW[c.t]&&!CREW[c.t].solo)gr[c.t]=(gr[c.t]||0)+1});
+  var ks=Object.keys(gr);
+  ks.forEach(function(t){
+    var C=CREW[t],has=cur.some(function(x){return x.crew===t});
+    hh+="<button class='row shp"+(has?" lock":"")+"' data-t='"+t+"'><span>›</span><span class='tx'>"+C.name+" ("+n(gr[t])+")<small>"+(has?"لدى السفينة "+C.name+" بالفعل":C.eff)+"</small></span><span class='ic'><img class='ci' src='"+C.img+"' alt=''></span></button>";
+  });
+  if(!ks.length)hh+="<p class='empty'>لا تملك طواقم غير مستخدمة. تجدها في المتجر.</p>";
+  hh+="<button class='big' id='hcb' style='margin-top:14px'>رجوع</button>";
+  w.innerHTML=hh;w.className="wh on";
+  $("whx").onclick=function(){w.className="wh"};
+  $("hcb").onclick=function(){vHelp(slot)};
+  var rs=w.querySelectorAll(".row[data-t]"),j;
+  for(j=0;j<rs.length;j++)rs[j].onclick=function(){
+    var t=this.getAttribute("data-t"),C=CREW[t];
+    if(cur.some(function(x){return x.crew===t})){toast("لدى هذه السفينة "+C.name+" بالفعل");return}
+    window.api("help_assign_crew",{p_target:V.user_id,p_slot:slot,p_crew:t}).then(function(res){
+      helpApply(res);
+      toast("أضفتَ "+C.name+" إلى سفينة "+V.name);
+      vHelp(slot);
+    }).catch(srvErr);
+  };
+}
+function helpRepList(slot){
+  var w=$("wh"),s=(V.ships||[])[slot],mx=vMax(s),hh="<header><span>اختر المصلح</span><button id='whx' aria-label='إغلاق'>✕</button></header><div class='sec'>أصلح سفينة "+esc(V.name)+" — الصحة "+n(s.hp)+" / "+n(mx)+"</div>";
+  var ks=Object.keys(REPAIRERS).filter(function(k){return ((S.rep||{})[k]||0)>0});
+  ks.forEach(function(k){var R=REPAIRERS[k];hh+="<button class='row shp' data-r='"+k+"'><span>›</span><span class='tx'>"+R.name+" ("+n(S.rep[k])+")<small>"+R.eff+"</small></span><span class='ic'><img class='ci' style='width:48px' src='"+R.img+"' alt=''></span></button>"});
+  if(!ks.length)hh+="<p class='empty'>لا تملك مصلحين. تجدهم في المتجر.</p>";
+  hh+="<button class='big' id='hrb' style='margin-top:14px'>رجوع</button>";
+  w.innerHTML=hh;w.className="wh on";
+  $("whx").onclick=function(){w.className="wh"};
+  $("hrb").onclick=function(){vHelp(slot)};
+  var rs=w.querySelectorAll(".row[data-r]"),j;
+  for(j=0;j<rs.length;j++)rs[j].onclick=function(){
+    var k=this.getAttribute("data-r"),R=REPAIRERS[k];
+    if(s.hp>=mx){toast("صحة هذه السفينة كاملة");return}
+    window.api("help_repair",{p_target:V.user_id,p_slot:slot,p_rep:k}).then(function(res){
+      helpApply(res);
+      toast("أضاف "+R.name+" "+n(Number(res.gain))+" نقطة صحة لسفينة "+V.name);
+      vHelp(slot);
+    }).catch(srvErr);
+  };
 }
 function vFire(slot,k){
   var W=WEAPONS[k];
@@ -1659,9 +1729,7 @@ function crewBuy(t){
   $("qbuy").onclick=function(){
     var tot=qty*C.price,i;
     if(S.coins<tot){toast("رصيدك لا يكفي");return}
-    payThen(tot,function(){
-    for(i=0;i<qty;i++)S.crew.push({t:t,rem:C.hours*3600000,ship:-1,since:0});
-    save();render();toast("تم شراء "+n(qty)+" من "+C.name);crewBuy(t)});
+    window.api("buy_crew",{p_crew:t,p_qty:qty}).then(function(st){applyServer(st);save();render();toast("تم شراء "+n(qty)+" من "+C.name);crewBuy(t)}).catch(srvErr);
   };
 }
 var priceFrom="wh";
