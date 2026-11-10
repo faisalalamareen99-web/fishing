@@ -267,6 +267,12 @@ button:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
 .rkc{color:#888;font-size:1.6em;flex:none}
 
 .rkmsg{padding:24px 18px;text-align:center;color:#666}
+
+.frame .pmenu{position:absolute;left:calc(var(--u,4px)*2);top:90.5%;display:none;flex-direction:column;gap:calc(var(--u,4px)*.9);width:calc(var(--u,4px)*35);z-index:4}
+.frame .pmenu button{display:block;width:100%;padding:calc(var(--u,4px)*.9) calc(var(--u,4px)*1);border:calc(var(--u,4px)*.35) solid #c9a24a;border-radius:calc(var(--u,4px)*.8);background:linear-gradient(#5a3a1e,#3a2410);color:#f6e6c4;font-family:inherit;font-weight:700;font-size:calc(var(--u,4px)*3);line-height:1.25;text-align:center;white-space:nowrap;cursor:pointer;box-shadow:0 2px 6px #000a}
+.frame .pmenu button:active{background:linear-gradient(#7a5028,#4a2f14)}
+.setfoot{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 18px;border-top:3px solid #c9a24a;background:#f6e6c4;color:#111}
+.setfoot button{padding:9px 16px;border:0;border-radius:8px;background:#ff7a00;color:#fff;font-family:inherit;font-weight:700;cursor:pointer}
 </style>
 <style>
 #auth{position:fixed;inset:0;z-index:9999;background:#1a140e;display:flex;align-items:center;justify-content:center;padding:18px;font-family:"Noto Naskh Arabic","Geeza Pro","Segoe UI",Tahoma,serif}
@@ -297,6 +303,7 @@ button:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
     <button class="fishbtn" aria-label="الأسماك المستكشفة" style="left:67.7%;top:78%;width:12%;height:34%"></button>
     <button class="av" id="av" aria-label="الملف الشخصي"><span class="avp" id="avp">＋</span></button>
     <div class="pname" id="pname"></div>
+    <div class="pmenu" id="pmenu"><button id="pm_edit">تعديل الملف الشخصي</button><button id="pm_set">الإعدادات</button></div>
   </div>
   <button class="shop" id="shop" aria-label="سوق السفن"></button>
     <button class="shop" id="house" aria-label="المستودع" style="left:0;top:45%;width:24%;height:12%"></button>
@@ -563,6 +570,7 @@ function applyServer(st,soft){
   if(!st)return;
   if(typeof st.server_ms==="number")SRVOFF=st.server_ms-Date.now();
   S.coins=Number(st.coins);S.level=st.level;S.first=!!st.first_trip;
+  if(st.public_id!==undefined)S.pid=st.public_id;
   if(st.profile!==undefined){S.profile={name:(st.profile&&st.profile.name)||"",avatar:(st.profile&&st.profile.avatar)||""};if(typeof drawProfile==="function")drawProfile()}
   if(st.weapons!==undefined)S.weapons=st.weapons||{};
   if(st.repairers!==undefined)S.rep=st.repairers||{};
@@ -1329,10 +1337,45 @@ function profileScreen(){
     }
   };
 }
+var PM_OPEN=false;
+function profMenu(open){
+  var m=$("pmenu");
+  if(!m)return;
+  PM_OPEN=!!open;
+  m.style.display=open?"flex":"none";
+}
+function copyText(t,cb){
+  function fallback(){
+    try{
+      var a=document.createElement("textarea");
+      a.value=t;a.style.position="fixed";a.style.opacity="0";
+      document.body.appendChild(a);a.select();
+      var ok=document.execCommand("copy");
+      a.remove();cb(!!ok);
+    }catch(e){cb(false)}
+  }
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(t).then(function(){cb(true)}).catch(fallback);
+  }else fallback();
+}
+function settingsScreen(){
+  var w=$("wh"),id=S.pid;
+  w.innerHTML="<header><span>الإعدادات</span><button id='whx' aria-label='إغلاق'>✕</button></header>"+
+    "<div class='sec'>الإعدادات</div><p class='empty'>ستُضاف الإعدادات هنا قريبًا…</p>"+
+    "<div class='setfoot'>"+(id?"<span>رقمك: <b id='myid'>"+id+"</b></span><button id='cpid'>نسخ الرقم</button>":"<span>رقم التعريف متاح في النسخة الأونلاين.</span>")+"</div>";
+  w.className="wh on";
+  $("whx").onclick=function(){w.className="wh"};
+  if($("cpid"))$("cpid").onclick=function(){copyText(String(id),function(ok){toast(ok?"تم نسخ الرقم":"تعذّر النسخ")})};
+}
 function profileInit(){
   setU();
   window.addEventListener("resize",setU);
-  $("av").onclick=profileScreen;
+  $("av").onclick=function(e){e.stopPropagation();profMenu(!PM_OPEN)};
+  $("pm_edit").onclick=function(){profMenu(false);profileScreen()};
+  $("pm_set").onclick=function(){profMenu(false);settingsScreen()};
+  document.addEventListener("click",function(e){
+    if(PM_OPEN&&!e.target.closest("#pmenu")&&!e.target.closest("#av"))profMenu(false);
+  });
   drawProfile();
 }
 var RK={tab:"world",open:false,q:""};
@@ -1401,7 +1444,7 @@ function enemiesLoad(){
     box.innerHTML="";
     if(!rows.length){box.innerHTML="<div class='rkmsg'>لا أعداء. لم يهاجمك أحد بعد.</div>";return}
     rows.forEach(function(e){
-      var r={user_id:e.user_id,name:e.name,avatar:e.avatar,level:e.level,coins:0,rank:0,is_me:false,is_friend:!!e.is_friend};
+      var r={user_id:e.user_id,public_id:e.public_id,name:e.name,avatar:e.avatar,level:e.level,coins:0,rank:0,is_me:false,is_friend:!!e.is_friend};
       var ok=e.avatar&&/^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/.test(e.avatar);
       var d=document.createElement("div");d.className="rk";
       d.innerHTML="<span class='rkav'"+(ok?" style=\"background-image:url('"+e.avatar+"')\"":"")+">"+(ok?"":"👤")+"</span><span class='rkm'><b style='white-space:normal'>قام "+esc(e.name)+" بمهاجمتك "+arAgo(Date.now()+off-Number(e.last_ms))+"</b><small>عدد الهجمات: "+n(e.count)+"</small></span><span class='rkc'>›</span>";
@@ -1554,7 +1597,7 @@ function rankScreen(tab){
   var w=$("wh"),isList=RK.tab==="world"||RK.tab==="friends";
   var h="<header><span>الترتيب</span><span class='hb'><button id='rks' aria-label='بحث'>🔍</button><button id='whx' aria-label='إغلاق'>✕</button></span></header>";
   h+="<div class='stab s5'>"+RKTABS.map(function(t){return "<button data-k='"+t[0]+"'"+(t[0]===RK.tab?" class='on'":"")+">"+t[1]+"</button>"}).join("")+"</div>";
-  if(RK.open&&isList)h+="<div class='rksb'><input id='rkq' class='rkin' maxlength='16' placeholder='"+(RK.tab==="friends"?"ابحث في أصدقائك":"ابحث في كل اللاعبين")+"'><button id='rkgo'>بحث</button></div>";
+  if(RK.open&&isList)h+="<div class='rksb'><input id='rkq' class='rkin' maxlength='16' placeholder='"+(RK.tab==="friends"?"ابحث في أصدقائك بالاسم أو الرقم":"ابحث في كل اللاعبين بالاسم أو الرقم")+"'><button id='rkgo'>بحث</button></div>";
   h+="<div id='rklist' class='rklist'></div>";
   w.innerHTML=h;w.className="wh on";
   $("whx").onclick=function(){w.className="wh"};
