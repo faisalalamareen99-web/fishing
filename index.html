@@ -263,7 +263,9 @@ button:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
 .rkm{flex:1;min-width:0;display:flex;flex-direction:column;text-align:right}
 .rkm b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rkm small{color:#555}
-.rkb{width:40px;height:40px;border-radius:50%;border:0;background:#2a7ab8;color:#fff;font-size:1.2em;cursor:pointer;flex:none}
+.rk{cursor:pointer}
+.rkc{color:#888;font-size:1.6em;flex:none}
+
 .rkmsg{padding:24px 18px;text-align:center;color:#666}
 </style>
 <style>
@@ -553,7 +555,7 @@ function shipMax(i){return MAXP[S.b[i].type||"small"]}
 if(S.hpv!==2){S.b.forEach(function(s){s.hp=MAXP[s.type||"small"]});S.hpv=2;save()}
 if(!S.rep)S.rep={};
 var SRVOFF=0;
-function srvErr(e){toast((e&&e.message)||"تعذّر الاتصال بالخادم")}
+function srvErr(e){var m=(e&&e.message)||"";try{console.error("server error:",e)}catch(x){}if(/Could not find the function|schema cache/i.test(m))m="الخادم غير مجهّز لهذه الميزة بعد: شغّل ملفات SQL الناقصة في Supabase";toast(m||"تعذّر الاتصال بالخادم")}
 function payThen(amount,fn){
   window.api("spend_coins",{p_amount:amount}).then(function(st){applyServer(st);fn()}).catch(srvErr);
 }
@@ -562,16 +564,17 @@ function applyServer(st,soft){
   if(typeof st.server_ms==="number")SRVOFF=st.server_ms-Date.now();
   S.coins=Number(st.coins);S.level=st.level;S.first=!!st.first_trip;
   if(st.profile!==undefined){S.profile={name:(st.profile&&st.profile.name)||"",avatar:(st.profile&&st.profile.avatar)||""};if(typeof drawProfile==="function")drawProfile()}
+  if(st.weapons!==undefined)S.weapons=st.weapons||{};
+  if(st.repairers!==undefined)S.rep=st.repairers||{};
+  if(st.ruin_until_ms!==undefined){S.ruinUntil=st.ruin_until_ms?Number(st.ruin_until_ms)-SRVOFF:0;if(typeof applyBgCss==="function")applyBgCss()}
   var wh0=st.warehouse||{};
   Object.keys(FISH).forEach(function(k){S[FISH[k].key]=Number(wh0[k]||0)});
   (st.ships||[]).forEach(function(sv){
     var i=sv.slot,s=S.b[i];
     if(!s)return;
     if(soft&&typeof busy!=="undefined"&&busy[i])return;
-    var changed=(s.own!==sv.owned)||(s.type!==sv.type);
     s.own=!!sv.owned;s.type=sv.type;
-    if(changed&&sv.owned)s.hp=MAXP[sv.type];
-    if(s.hp===undefined)s.hp=MAXP[s.type];
+    s.hp=(typeof sv.hp==="number")?sv.hp:MAXP[sv.type];
     if(sv.state==="fishing"){s.p="fishing";s.t=Number(sv.started_ms)-SRVOFF;s.ft=sv.fish}
     else{s.p="idle";s.t=0;s.ft=null}
     s.nx=sv.next_fish||null;
@@ -667,7 +670,7 @@ function repair(i){
   var s=S.b[i],c=repairCost(i);
   ask("إصلاح السفينة يكلف "+n(c)+" ذهب","إصلاح",function(){
     if(S.coins<c){toast("رصيدك لا يكفي للإصلاح");return}
-    payThen(c,function(){s.hp=shipMax(i);save();render();toast("تم إصلاح السفينة")});
+    window.api("repair_ship",{p_slot:i}).then(function(st){applyServer(st);save();render();toast("تم إصلاح السفينة")}).catch(srvErr);
   });
 }
 function menu(i){
@@ -735,9 +738,7 @@ function repForShip(i){
     var k=this.getAttribute("data-r"),R=REPAIRERS[k],s=S.b[i],mx=shipMax(i);
     if(!(S.rep[k]>0))return;
     if(s.hp>=mx){toast("صحة هذه السفينة كاملة");return}
-    var gain=Math.min(R.heal,mx-s.hp);
-    s.hp+=gain;S.rep[k]--;save();render();
-    toast("أضاف "+R.name+" "+n(gain)+" نقطة صحة");details(i);
+    window.api("use_repairer",{p_rep:k,p_slot:i}).then(function(st){applyServer(st);save();render();toast("أضاف "+R.name+" "+n(Number(st.gain))+" نقطة صحة");details(i)}).catch(srvErr);
   };
 }
 function details(i){
@@ -767,7 +768,7 @@ function details(i){
   $("sd1").onclick=function(){crewForShip(i)};
   $("sd2").onclick=function(){repForShip(i)};
   $("sd3").onclick=function(){w.className="wh"};
-  $("sdt").onclick=function(){S.b[i].hp=Math.floor(shipMax(i)*0.05);save();render();details(i)};
+  $("sdt").style.display="none";
   clearInterval(window.dT);
   window.dT=setInterval(function(){var e=$("sdc");if(!e||!$("wh").classList.contains("on")){clearInterval(window.dT);return}var cl=S.crew.filter(function(c){return c.ship===i}),tm=e.querySelectorAll(".ctm");if(tm.length!==cl.length){e.innerHTML=crewLines(i);return}cl.forEach(function(c,q){tm[q].textContent=hms(crewRem(c))})},1000);
 }
@@ -933,8 +934,7 @@ function repBuy(t){
   $("qbuy").onclick=function(){
     var tot=qty*R.price;
     if(S.coins<tot){toast("رصيدك لا يكفي");return}
-    payThen(tot,function(){S.rep[t]=(S.rep[t]||0)+qty;
-    save();render();toast("تم شراء "+n(qty)+" من "+R.name);repBuy(t)});
+    window.api("buy_repairer",{p_rep:t,p_qty:qty}).then(function(st){applyServer(st);save();render();toast("تم شراء "+n(qty)+" من "+R.name);repBuy(t)}).catch(srvErr);
   };
 }
 function repDetail(t){
@@ -966,10 +966,7 @@ function repPick(t){
   for(j=0;j<rs.length;j++)rs[j].onclick=function(){
     var k=+this.getAttribute("data-s"),s2=S.b[k],mx2=shipMax(k);
     if(s2.hp>=mx2){toast("صحة هذه السفينة كاملة");return}
-    var gain=Math.min(R.heal,mx2-s2.hp);
-    s2.hp+=gain;S.rep[t]--;save();render();
-    toast("أضاف "+R.name+" "+n(gain)+" نقطة صحة");
-    repDetail(t);
+    window.api("use_repairer",{p_rep:t,p_slot:k}).then(function(st){applyServer(st);save();render();toast("أضاف "+R.name+" "+n(Number(st.gain))+" نقطة صحة");repDetail(t)}).catch(srvErr);
   };
 }
 var BGS={eiffel:{name:"خلفية برج إيفل",price:5000000,img:EIF_DAY,imgs:{day:EIF_DAY,dusk:EIF_DUSK,night:EIF_NIGHT},pos:"24.6% 285%",size:"110% 104%",note:"تتبدل تلقائيًا: نهار من 7 ص إلى 6 م، غروب من 6 م إلى 8 م، ليل من 8 م إلى 7 ص"}};
@@ -1205,71 +1202,6 @@ function storeScreen(tab){
   var rr=w.querySelectorAll(".row[data-r]");for(j=0;j<rr.length;j++)rr[j].onclick=function(){repBuy(this.getAttribute("data-r"))};
   var gg=w.querySelectorAll(".row[data-g]");for(j=0;j<gg.length;j++)gg[j].onclick=function(){bgBuy(this.getAttribute("data-g"))};
 }
-var ENEMY_FLEET=["advanced","luxury","ambush"];
-var PTS={fisher:18000,bigfisher:38000,ambush:50000,luxury:64000,advanced:100000};
-function enemyInit(){if(!S.enemy||!S.enemy.ships||S.enemy.ships.length!==ENEMY_FLEET.length)S.enemy={ships:ENEMY_FLEET.map(function(t){return {t:t,hp:PTS[t]}})}}
-function enemyTotal(){var a=0,m=0;S.enemy.ships.forEach(function(s){a+=s.hp;m+=PTS[s.t]});return [a,m]}
-function enemiesScreen(){
-  enemyInit();
-  var w=$("wh"),tt=enemyTotal(),alive=S.enemy.ships.filter(function(s){return s.hp>0}).length;
-  w.innerHTML="<header><span>الأعداء</span><button id='whx' aria-label='إغلاق'>✕</button></header><div class='sec'>قائمة الأعداء</div>"+
-    "<button class='row shp' id='en1'><span>›</span><span class='tx'>العدو الوهمي<small>"+n(alive)+" من "+n(S.enemy.ships.length)+" سفن — الصحة "+n(tt[0])+" من "+n(tt[1])+"</small></span><span class='ic'>🏴‍☠️</span></button>"+
-    "<button class='big' id='ebk' style='margin-top:14px'>رجوع</button>";
-  w.className="wh on";
-  $("whx").onclick=function(){w.className="wh"};
-  $("ebk").onclick=function(){w.className="wh"};
-  $("en1").onclick=enemyFleet;
-}
-function ephase(i){var es=S.enemy&&S.enemy.ships[i];if(es&&es.hp<PTS[es.t]*0.1)return {fishing:false,prog:0};var ph=(((Date.now()/1000)+i*37)%120);return {fishing:ph<90,prog:Math.min(1,ph/90)}}
-function epos(i){var P=ephase(i).fishing?BOATS[i].fish:BOATS[i].dock;return {x:P.x,y:P.y}}
-var ECLS={advanced:"ad",luxury:"ly",ambush:"am",bigfisher:"bf",fisher:"fl"};
-var enT=null;
-function enemyFleet(){
-  enemyInit();
-  var w=$("wh"),tt=enemyTotal(),nk=S.weapons.nuke||0;
-  var h="<header><span>محيط العدو الوهمي</span><span>الصحة "+n(tt[0])+" / "+n(tt[1])+"</span><button id='whx' aria-label='إغلاق'>✕</button></header>";
-  S.enemy.ships.forEach(function(s,i){
-    var T=TYPES[s.t],mx=PTS[s.t],dead=s.hp<mx*0.1,pos=[epos(i).x,epos(i).y];
-    h+="<button class='boat"+(ephase(i).fishing?" fishing":"")+(dead?" wreck":"")+" "+ECLS[s.t]+"' data-e='"+i+"' aria-label='"+T.name+"' style='left:"+pos[0]+"%;top:"+pos[1]+"%;'><div class='bars'><i class='fs'><b></b></i><i class='hp'><b style='width:"+Math.round(s.hp/mx*100)+"%'></b></i><div class='crew'></div><span class='pc'></span></div><img src='"+(dead?WRECKIMG:T.img)+"' alt=''><img class='net' src='"+NETIMG+"' alt=''></button>";
-  });
-  h+="<div class='ocnbar'><button id='enuke'>"+(nk?"🚀 ذرية ("+n(nk)+")":"لا قنبلة ذرية")+"</button><button id='erst'>إعادة بناء</button><button id='ebk'>رجوع</button></div>";
-  w.innerHTML=h;w.className="wh ocean"+(ruined(S.enemy)?" ruin":"")+" on";
-  $("whx").onclick=function(){clearInterval(enT);w.className="wh"};
-  $("ebk").onclick=function(){clearInterval(enT);enemiesScreen()};
-  $("erst").onclick=function(){S.enemy=null;enemyInit();save();enemyFleet();toast("أُعيد بناء الأسطول")};
-  $("enuke").onclick=function(){
-    if(!(S.weapons.nuke>0)){toast("اشترِ قنبلة ذرية من المتجر");return}
-    fireAt(0,"nuke");
-  };
-  var rs=w.querySelectorAll(".boat[data-e]"),j;
-  for(j=0;j<rs.length;j++)rs[j].onclick=function(){
-    var i=+this.getAttribute("data-e");
-    if(S.enemy.ships[i].hp<=0){toast("هذه السفينة غرقت");return}
-    enemyMenu(i);
-  };
-  function tick(){
-    if(!$("wh").classList.contains("ocean")){clearInterval(enT);return}
-    if(!ruined(S.enemy))$("wh").classList.remove("ruin");
-    var bs=$("wh").querySelectorAll(".boat[data-e]"),q;
-    for(q=0;q<bs.length;q++){
-      var st=ephase(q),P=epos(q);
-      bs[q].classList.toggle("fishing",st.fishing);
-      bs[q].style.left=P.x+"%";bs[q].style.top=P.y+"%";
-      bs[q].querySelector(".fs b").style.width=(st.prog*100)+"%";
-      bs[q].querySelector(".pc").textContent=remTxt((1-st.prog)*90000);
-    }
-  }
-  tick();clearInterval(enT);enT=setInterval(tick,1000);
-}
-function enemyMenu(i){
-  $("box").className="box dark";
-  $("box").innerHTML="<h2>هل تود القيام بذلك؟</h2><button class='opt' id='em1'>هجوم</button><button class='opt' id='em2'>مساعدة الصديق</button><button class='opt' id='em3'>تغيير الخلفية</button><button class='opt' id='em4'>إلغاء</button>";
-  $("modal").className="modal on";
-  $("em1").onclick=function(){closeM();clearInterval(enT);pickWeapon(i)};
-  $("em2").onclick=function(){closeM();toast("مساعدة الصديق قريبًا…")};
-  $("em3").onclick=function(){closeM();toast("تغيير الخلفية قريبًا…")};
-  $("em4").onclick=closeM;
-}
 var AC=null,MG=null;
 function ac(){
   try{
@@ -1321,90 +1253,6 @@ function whistle(sec){
   var lp=c.createBiquadFilter();lp.type="lowpass";lp.frequency.value=1800;
   g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.16,t+sec*0.8);g.gain.linearRampToValueAtTime(0,t+sec);
   o.connect(lp);lp.connect(g);g.connect(MG);o.start(t);o.stop(t+sec);
-}
-function fireNuke(k){
-  var W=WEAPONS[k];
-  S.weapons[k]--;save();
-  enemyFleet();
-  var w=$("wh"),sc=$("scene");
-  whistle(1.5);
-  var m=document.createElement("img");m.className="msl nuke";m.src=W.img;m.alt="";
-  m.style.left="70%";m.style.top="-14%";
-  w.appendChild(m);
-  setTimeout(function(){m.style.top="58%"},40);
-  setTimeout(function(){
-    m.remove();boomSound(4);
-    var e=document.createElement("div");e.className="boom big";e.textContent="💥";e.style.left="70%";e.style.top="58%";w.appendChild(e);
-    var sunk=0;
-    S.enemy.ships.forEach(function(s,idx){
-      if(s.hp>0){s.hp=Math.max(0,s.hp-W.dmg);if(s.hp<=0)sunk++}
-      var b=w.querySelector(".boat[data-e='"+idx+"']");
-      if(b){b.classList.add("hit");b.querySelector(".hp b").style.width=Math.round(s.hp/PTS[s.t]*100)+"%"}
-    });
-    S.enemy.ruinUntil=Date.now()+RUIN_MS;save();
-    setTimeout(function(){
-      var f=document.createElement("div");f.className="flash2";sc.appendChild(f);
-      setTimeout(function(){w.classList.add("ruin")},450);
-      setTimeout(function(){
-        f.remove();enemyFleet();
-        toast("💥 "+W.name+": -"+n(W.dmg)+" لكل سفينة"+(sunk?" — غرقت "+n(sunk):"")+" — تحوّل محيطه إلى خراب");
-      },2150);
-    },700);
-  },1560);
-}
-function fireAt(i,k){
-  if(WEAPONS[k].all){fireNuke(k);return}
-  var W=WEAPONS[k],targets=[],els2=[];
-  S.weapons[k]--;save();
-  S.enemy.ships.forEach(function(s,idx){if(s.hp>0&&(W.all||idx===i))targets.push(idx)});
-  enemyFleet();
-  var w=$("wh");
-  whoosh(1.1);
-  if(W.all){var fl=document.createElement("div");fl.className="flash";w.appendChild(fl)}
-  targets.forEach(function(ti){
-    var b=w.querySelector(".boat[data-e='"+ti+"']");
-    var X=parseFloat(b.style.left),Y=parseFloat(b.style.top);
-    var m=document.createElement("img");m.className="msl";m.src=W.img;m.alt="";m.style.left="-6%";m.style.top="-4%";
-    var dxp=(X+6)*w.offsetWidth/100,dyp=(Y+4)*w.offsetHeight/100;
-    m.style.transform="translate(-50%,-50%) rotate("+(Math.atan2(dyp,dxp)*180/Math.PI-15)+"deg) scaleX(-1)";
-    w.appendChild(m);
-    els2.push({m:m,X:X,Y:Y,b:b,ti:ti});
-  });
-  setTimeout(function(){els2.forEach(function(o){o.m.style.left=o.X+"%";o.m.style.top=o.Y+"%"})},40);
-  setTimeout(function(){
-    var sunk=0;
-    boomSound(WPOW[k]||1);
-    els2.forEach(function(o){
-      o.m.remove();
-      var e=document.createElement("div");e.className="boom";e.textContent="💥";e.style.left=o.X+"%";e.style.top=o.Y+"%";w.appendChild(e);
-      o.b.classList.add("hit");
-      var s=S.enemy.ships[o.ti];s.hp=Math.max(0,s.hp-W.dmg);if(s.hp<=0)sunk++;
-      o.b.querySelector(".hp b").style.width=Math.round(s.hp/PTS[s.t]*100)+"%";
-    });
-    if(W.all)S.enemy.ruinUntil=Date.now()+RUIN_MS;
-    save();
-    setTimeout(function(){
-      enemyFleet();
-      var sh=S.enemy.ships[i],nm=TYPES[sh.t].name;
-      toast(W.all?"💥 "+W.name+": -"+n(W.dmg)+" لكل سفينة"+(sunk?" — غرقت "+n(sunk):"")+" — تحوّل محيطه إلى خراب":"أصبت "+nm+": -"+n(W.dmg)+" (المتبقي "+n(sh.hp)+")");
-    },1100);
-  },1160);
-}
-function pickWeapon(i){
-  var w=$("wh"),s=S.enemy.ships[i],T=TYPES[s.t],list=Object.keys(WEAPONS).filter(function(k){return (S.weapons[k]||0)>0});
-  var h="<header><span>اختر السلاح</span><button id='whx' aria-label='إغلاق'>✕</button></header><div class='sec'>الهدف: "+T.name+" — "+n(s.hp)+" نقطة</div>";
-  list.forEach(function(k){var W=WEAPONS[k];h+="<button class='row shp' data-w='"+k+"'><span>›</span><span class='tx'>"+W.name+"<small>ضرر "+n(W.dmg)+" نقطة"+(W.all?" لكل السفن":"")+" — لديك "+n(S.weapons[k])+"</small></span><span class='ic'><img class='ci' style='width:56px' src='"+W.img+"' alt=''></span></button>"});
-  if(!list.length)h+="<p class='empty'>لا تملك أسلحة. اشترِها من المتجر ثم عُد.</p>";
-  h+="<button class='big' id='pbk' style='margin-top:14px'>رجوع</button>";
-  w.innerHTML=h;w.className="wh on";
-  $("whx").onclick=function(){w.className="wh"};
-  $("pbk").onclick=enemyFleet;
-  var rs=w.querySelectorAll(".row[data-w]"),j;
-  for(j=0;j<rs.length;j++)rs[j].onclick=function(){
-    var k=this.getAttribute("data-w");
-    if(!(S.weapons[k]>0))return;
-    fireAt(i,k);
-  };
 }
 function weaponDetail(t){
   var W=WEAPONS[t],w=$("wh");
@@ -1494,23 +1342,191 @@ function rankRow(r,reload){
   var d=document.createElement("div");
   d.className="rk"+(r.is_me?" me":"")+(r.rank<=3?" top"+r.rank:"");
   var ok=r.avatar&&/^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/.test(r.avatar);
-  d.innerHTML="<span class='rkn'>"+n(r.rank)+"</span><span class='rkav'"+(ok?" style=\"background-image:url('"+r.avatar+"')\"":"")+">"+(ok?"":"👤")+"</span><span class='rkm'><b>"+esc(r.name)+"</b><small>المستوى "+n(r.level)+" · 🪙 "+n(r.coins)+"</small></span>";
-  if(!r.is_me&&window.api){
-    var b=document.createElement("button");
-    b.className="rkb";b.textContent=r.is_friend?"✕":"＋";
-    b.setAttribute("aria-label",r.is_friend?"إزالة صديق":"إضافة صديق");
-    b.onclick=function(){
-      if(r.is_friend){
-        ask("إزالة "+esc(r.name)+" من أصدقائك؟","إزالة",function(){
-          window.api("remove_friend",{p_user:r.user_id}).then(function(){r.is_friend=false;toast("تمت إزالة الصديق");if(RK.tab==="friends")reload();else{b.textContent="＋"}}).catch(srvErr);
-        });
-      }else{
-        window.api("add_friend",{p_user:r.user_id}).then(function(){r.is_friend=true;b.textContent="✕";toast("تمت إضافة "+r.name+" إلى أصدقائك")}).catch(srvErr);
-      }
-    };
-    d.appendChild(b);
-  }
+  d.innerHTML="<span class='rkn'>"+n(r.rank)+"</span><span class='rkav'"+(ok?" style=\"background-image:url('"+r.avatar+"')\"":"")+">"+(ok?"":"👤")+"</span><span class='rkm'><b>"+esc(r.name)+"</b><small>المستوى "+n(r.level)+" · 🪙 "+n(r.coins)+(r.is_friend?" · 👥":"")+"</small></span><span class='rkc'>›</span>";
+  d.onclick=function(){playerMenu(r,reload)};
   return d;
+}
+function playerMenu(r,reload,from){
+  var h2="<h2>"+esc(r.name)+"</h2>";
+  if(r.is_me)h2+="<button class='opt' id='pm1'>تعديل ملفي الشخصي</button>";
+  else{
+    h2+="<button class='opt' id='pm1'>"+(r.is_friend?"إزالة من الأصدقاء":"إضافة صديق")+"</button>";
+    h2+="<button class='opt' id='pm2'>زيارة محيط اللاعب</button>";
+  }
+  h2+="<button class='opt' id='pm3'>إلغاء</button>";
+  $("box").className="box dark";$("box").innerHTML=h2;$("modal").className="modal on";
+  $("pm3").onclick=closeM;
+  $("pm1").onclick=function(){
+    closeM();
+    if(r.is_me){profileScreen();return}
+    if(!window.api){toast("هذه الميزة في النسخة الأونلاين");return}
+    if(r.is_friend){
+      window.api("remove_friend",{p_user:r.user_id}).then(function(){r.is_friend=false;toast("تمت إزالة الصديق");reload()}).catch(srvErr);
+    }else{
+      window.api("add_friend",{p_user:r.user_id}).then(function(){r.is_friend=true;toast("تمت إضافة "+r.name+" إلى أصدقائك");reload()}).catch(srvErr);
+    }
+  };
+  if($("pm2"))$("pm2").onclick=function(){
+    closeM();
+    if(!window.api){toast("هذه الميزة في النسخة الأونلاين");return}
+    window.api("visit_ocean",{p_user:r.user_id}).then(function(v){visitScreen(v,from||"rank")}).catch(srvErr);
+  };
+}
+function arAgo(ms){
+  var s=Math.max(0,Math.floor(ms/1000));
+  if(s<60)return "منذ لحظات";
+  var m=Math.floor(s/60);
+  if(m<60)return "منذ "+(m===1?"دقيقة":m===2?"دقيقتين":m<=10?m+" دقائق":m+" دقيقة");
+  var hr=Math.floor(m/60);
+  if(hr<24)return "منذ "+(hr===1?"ساعة":hr===2?"ساعتين":hr<=10?hr+" ساعات":hr+" ساعة");
+  var d=Math.floor(hr/24);
+  return "منذ "+(d===1?"يوم":d===2?"يومين":d<=10?d+" أيام":d+" يومًا");
+}
+function enemiesScreen(){
+  var w=$("wh");
+  w.innerHTML="<header><span>الأعداء</span><button id='whx' aria-label='إغلاق'>✕</button></header><div class='sec'>من هاجمك</div><div id='enlist' class='rklist'></div><button class='big' id='enb' style='margin:12px 0'>رجوع</button>";
+  w.className="wh on";
+  $("whx").onclick=function(){w.className="wh"};
+  $("enb").onclick=function(){w.className="wh"};
+  enemiesLoad();
+}
+function enemiesLoad(){
+  var box=$("enlist");
+  if(!box)return;
+  if(!window.api){box.innerHTML="<div class='rkmsg'>قائمة الأعداء متاحة في النسخة الأونلاين.</div>";return}
+  box.innerHTML="<div class='rkmsg'>جارٍ التحميل…</div>";
+  window.api("enemies",{}).then(function(res){
+    if(!$("enlist"))return;
+    var off=Number(res.server_ms)-Date.now(),rows=res.rows||[];
+    box.innerHTML="";
+    if(!rows.length){box.innerHTML="<div class='rkmsg'>لا أعداء. لم يهاجمك أحد بعد.</div>";return}
+    rows.forEach(function(e){
+      var r={user_id:e.user_id,name:e.name,avatar:e.avatar,level:e.level,coins:0,rank:0,is_me:false,is_friend:!!e.is_friend};
+      var ok=e.avatar&&/^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/.test(e.avatar);
+      var d=document.createElement("div");d.className="rk";
+      d.innerHTML="<span class='rkav'"+(ok?" style=\"background-image:url('"+e.avatar+"')\"":"")+">"+(ok?"":"👤")+"</span><span class='rkm'><b style='white-space:normal'>قام "+esc(e.name)+" بمهاجمتك "+arAgo(Date.now()+off-Number(e.last_ms))+"</b><small>عدد الهجمات: "+n(e.count)+"</small></span><span class='rkc'>›</span>";
+      d.onclick=function(){playerMenu(r,enemiesLoad,"enemies")};
+      box.appendChild(d);
+    });
+  }).catch(function(e){if($("enlist"))box.innerHTML="<div class='rkmsg'>"+esc((e&&e.message)||"تعذّر التحميل")+"</div>"});
+}
+var V=null,visitT=null;
+var TCLS={small:"",launch:"lg",trawler:"xl",yacht:"yl",schooner:"sl",tall:"tl",fisher:"fl",bigfisher:"bf",ambush:"am",luxury:"ly",advanced:"ad"};
+function vMax(s){return (typeof MAXP!=="undefined"&&MAXP[s.type])||2000}
+function vStop(){clearInterval(visitT);visitT=null}
+function visitScreen(v,from){
+  V=v;V.from=from||"rank";V.off=Number(v.server_ms)-Date.now();
+  renderVisit();
+}
+function renderVisit(){
+  var w=$("wh"),v=V,ruin=v.ruin_until_ms&&Number(v.ruin_until_ms)>Date.now()+v.off;
+  var hh="<header><span>محيط "+esc(v.name)+" — المستوى "+n(v.level)+"</span><button id='whx' aria-label='إغلاق'>✕</button></header>";
+  (v.ships||[]).forEach(function(s){
+    if(!s.owned)return;
+    var T=TYPES[s.type]||TYPES.small,B=BOATS[s.slot],mx=vMax(s),wr=s.hp<mx*0.1,f=s.state==="fishing"&&!wr,pos=f?B.fish:B.dock;
+    hh+="<button class='boat"+(f?" fishing":"")+(wr?" wreck":"")+" "+(TCLS[s.type]||"")+"' data-v='"+s.slot+"' style='left:"+pos.x+"%;top:"+pos.y+"%'><div class='bars'><i class='fs'><b></b></i><i class='hp'><b style='width:"+Math.round(s.hp/mx*100)+"%'></b></i><div class='crew'></div><span class='pc'></span></div><img src='"+(wr?WRECKIMG:T.img)+"' alt=''><img class='net' src='"+NETIMG+"' alt=''></button>";
+  });
+  var nk=(S.weapons&&S.weapons.nuke)||0;
+  hh+="<div class='ocnbar'><button id='vnuke'>"+(nk?"🚀 ذرية ("+n(nk)+")":"لا قنبلة ذرية")+"</button><button id='vbk'>رجوع</button></div>";
+  w.innerHTML=hh;w.className="wh ocean visit"+(ruin?" ruin":"")+" on";
+  $("whx").onclick=function(){vStop();w.className="wh"};
+  $("vbk").onclick=function(){vStop();if(V.from==="enemies")enemiesScreen();else rankScreen()};
+  $("vnuke").onclick=function(){
+    if(!(S.weapons&&S.weapons.nuke>0)){toast("اشترِ قنبلة ذرية من المتجر");return}
+    vFire(null,"nuke");
+  };
+  var bs=w.querySelectorAll(".boat[data-v]"),j;
+  for(j=0;j<bs.length;j++)bs[j].onclick=function(){
+    var sl=+this.getAttribute("data-v"),s=(V.ships||[])[sl];
+    if(!s||s.hp<=0){toast("هذه السفينة دُمّرت");return}
+    vMenu(sl);
+  };
+  function tick(){
+    if(!$("wh").classList.contains("visit")){vStop();return}
+    var now=Date.now()+V.off,q;
+    for(q=0;q<bs.length;q++){
+      var s=(V.ships||[])[+bs[q].getAttribute("data-v")];
+      if(!s||s.state!=="fishing"||s.hp<vMax(s)*0.1)continue;
+      var dur=(TYPES[s.type]||TYPES.small).dur,el=now-Number(s.started_ms),pp=Math.max(0,Math.min(1,el/dur));
+      bs[q].querySelector(".fs b").style.width=(pp*100)+"%";
+      bs[q].querySelector(".pc").textContent=pp>=1?"ممتلئة":remTxt(dur-el);
+    }
+  }
+  tick();clearInterval(visitT);visitT=setInterval(tick,1000);
+}
+function vMenu(slot){
+  $("box").className="box dark";
+  $("box").innerHTML="<h2>هل تود القيام بذلك؟</h2><button class='opt' id='vm1'>هجوم</button><button class='opt' id='vm2'>مساعدة الصديق</button><button class='opt' id='vm3'>تغيير الخلفية</button><button class='opt' id='vm4'>إلغاء</button>";
+  $("modal").className="modal on";
+  $("vm1").onclick=function(){closeM();vPick(slot)};
+  $("vm2").onclick=function(){closeM();toast("مساعدة الصديق قريبًا…")};
+  $("vm3").onclick=function(){closeM();toast("تغيير الخلفية قريبًا…")};
+  $("vm4").onclick=closeM;
+}
+function vPick(slot){
+  vStop();
+  var w=$("wh"),s=(V.ships||[])[slot],T=TYPES[s.type]||TYPES.small,list=Object.keys(WEAPONS).filter(function(k){return ((S.weapons||{})[k]||0)>0});
+  var hh="<header><span>اختر السلاح</span><button id='whx' aria-label='إغلاق'>✕</button></header><div class='sec'>الهدف: "+T.name+" — "+n(s.hp)+" نقطة</div>";
+  list.forEach(function(k){var W=WEAPONS[k];hh+="<button class='row shp' data-w='"+k+"'><span>›</span><span class='tx'>"+W.name+"<small>ضرر "+n(W.dmg)+" نقطة"+(W.all?" لكل السفن":"")+" — لديك "+n(S.weapons[k])+"</small></span><span class='ic'><img class='ci' style='width:56px' src='"+W.img+"' alt=''></span></button>"});
+  if(!list.length)hh+="<p class='empty'>لا تملك أسلحة. اشترِها من المتجر ثم عُد.</p>";
+  hh+="<button class='big' id='pbk' style='margin-top:14px'>رجوع</button>";
+  w.innerHTML=hh;w.className="wh on";
+  $("whx").onclick=function(){w.className="wh"};
+  $("pbk").onclick=renderVisit;
+  var rs=w.querySelectorAll(".row[data-w]"),j;
+  for(j=0;j<rs.length;j++)rs[j].onclick=function(){vFire(slot,this.getAttribute("data-w"))};
+}
+function vFire(slot,k){
+  var W=WEAPONS[k];
+  ac();
+  window.api("attack",{p_target:V.user_id,p_slot:W.all?null:slot,p_weapon:k}).then(function(res){
+    renderVisit();
+    vAnimate(res,slot,k);
+  }).catch(function(e){srvErr(e);renderVisit()});
+}
+function vAnimate(res,slot,k){
+  var W=WEAPONS[k],w=$("wh"),sc=$("scene"),tg=res.target,before={};
+  (V.ships||[]).forEach(function(s){before[s.slot]=s.hp});
+  function finish(){
+    var dmg=0;
+    (tg.ships||[]).forEach(function(s){dmg+=Math.max(0,(before[s.slot]||0)-s.hp)});
+    V.ships=tg.ships;V.ruin_until_ms=tg.ruin_until_ms;V.off=Number(tg.server_ms)-Date.now();
+    applyServer(res);
+    renderVisit();
+    toast(W.all?"💥 "+W.name+": أصبت "+n(res.hits)+" سفينة بـ "+n(dmg)+" نقطة — تحوّل محيطه إلى خراب":"أصبت السفينة: -"+n(dmg)+" نقطة");
+  }
+  if(W.all){
+    whistle(1.5);
+    var m=document.createElement("img");m.className="msl nuke";m.src=W.img;m.alt="";
+    m.style.left="70%";m.style.top="-14%";w.appendChild(m);
+    setTimeout(function(){m.style.top="58%"},40);
+    setTimeout(function(){
+      m.remove();boomSound(4);
+      var e=document.createElement("div");e.className="boom big";e.textContent="💥";e.style.left="70%";e.style.top="58%";w.appendChild(e);
+      setTimeout(function(){
+        var f=document.createElement("div");f.className="flash2";sc.appendChild(f);
+        setTimeout(function(){w.classList.add("ruin")},450);
+        setTimeout(function(){f.remove();finish()},2150);
+      },700);
+    },1560);
+    return;
+  }
+  var b=w.querySelector(".boat[data-v='"+slot+"']");
+  if(!b){finish();return}
+  var X=parseFloat(b.style.left),Y=parseFloat(b.style.top);
+  whoosh(1.1);
+  var ms=document.createElement("img");ms.className="msl";ms.src=W.img;ms.alt="";ms.style.left="-6%";ms.style.top="-4%";
+  var dxp=(X+6)*w.offsetWidth/100,dyp=(Y+4)*w.offsetHeight/100;
+  ms.style.transform="translate(-50%,-50%) rotate("+(Math.atan2(dyp,dxp)*180/Math.PI-15)+"deg) scaleX(-1)";
+  w.appendChild(ms);
+  setTimeout(function(){ms.style.left=X+"%";ms.style.top=Y+"%"},40);
+  setTimeout(function(){
+    ms.remove();boomSound(WPOW[k]||1);
+    var e=document.createElement("div");e.className="boom";e.textContent="💥";e.style.left=X+"%";e.style.top=Y+"%";w.appendChild(e);
+    var ts=(tg.ships||[])[slot];
+    if(ts){var hb=b.querySelector(".hp b");if(hb)hb.style.width=Math.round(ts.hp/vMax(ts)*100)+"%"}
+    setTimeout(finish,1100);
+  },1160);
 }
 function rankLoad(){
   var box=$("rklist");
@@ -1577,8 +1593,7 @@ function weaponBuy(t){
   $("qbuy").onclick=function(){
     var tot=qty*W.price;
     if(S.coins<tot){toast("رصيدك لا يكفي");return}
-    payThen(tot,function(){S.weapons[t]=(S.weapons[t]||0)+qty;
-    save();render();toast("تم شراء "+n(qty)+" من "+W.name);weaponBuy(t)});
+    window.api("buy_weapon",{p_weapon:t,p_qty:qty}).then(function(st){applyServer(st);save();render();toast("تم شراء "+n(qty)+" من "+W.name);weaponBuy(t)}).catch(srvErr);
   };
 }
 function crewBuy(t){
