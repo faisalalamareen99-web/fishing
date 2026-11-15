@@ -1397,7 +1397,7 @@ function repPick(t){
     window.api("use_repairer",{p_rep:t,p_slot:k}).then(function(st){applyServer(st);save();render();toast("أضاف "+R.name+" "+n(Number(st.gain))+" نقطة صحة");repDetail(t)}).catch(srvErr);
   };
 }
-var BGS={eiffel:{name:"خلفية برج إيفل",price:5000000,img:EIF_DAY,imgs:{day:EIF_DAY,dusk:EIF_DUSK,night:EIF_NIGHT},pos:"24.6% 285%",size:"110% 104%",note:"تتبدل تلقائيًا: نهار من 7 ص إلى 6 م، غروب من 6 م إلى 8 م، ليل من 8 م إلى 7 ص"}};
+var BGS={eiffel:{name:"خلفية برج إيفل",price:5000000,ruby:1000,img:EIF_DAY,imgs:{day:EIF_DAY,dusk:EIF_DUSK,night:EIF_NIGHT},pos:"24.6% 285%",size:"110% 104%",note:"تتبدل تلقائيًا: نهار من 7 ص إلى 6 م، غروب من 6 م إلى 8 م، ليل من 8 م إلى 7 ص"}};
 function bgImg(k){var B=BGS[k];if(!B.imgs)return B.img;var h=new Date().getHours();return (h>=7&&h<18)?B.imgs.day:((h>=18&&h<20)?B.imgs.dusk:B.imgs.night)}
 var RUIN_MS=172800000;
 function ruined(o){return !!o&&o.ruinUntil>Date.now()}
@@ -1426,14 +1426,14 @@ function bgBuy(k){
   var B=BGS[k],w=$("wh"),own=S.bgs.indexOf(k)>=0;
   w.innerHTML="<header><span>"+B.name+"</span><span><img class='cn' src='"+COINIMG+"' alt=''> "+n(S.coins)+"</span><button id='whx' aria-label='إغلاق'>✕</button></header><div class='sec'>"+(own?B.name:"شراء "+B.name)+"</div>"+
     "<div class='cpic'><img src='"+B.img+"' alt='' style='width:55%;max-height:none;border-radius:6px'></div>"+
-    "<div class='sd'><div class='ln'>السعر: "+n(B.price)+" ذهب</div><div class='ln'>"+B.note+"</div><div class='ln'>"+(own?"تملك هذه الخلفية. عيّنها من مقتنياتي":"عند تعيينها تتبدل خلفية المحيط")+"</div></div>"+
+    "<div class='sd'><div class='ln'>السعر: "+n(B.ruby||B.price)+(B.ruby?" ياقوتة":" ذهب")+"</div><div class='ln'>"+B.note+"</div><div class='ln'>"+(own?"تملك هذه الخلفية. عيّنها من مقتنياتي":"عند تعيينها تتبدل خلفية المحيط")+"</div></div>"+
     (own?"":"<button class='big pb' id='bgbuy' style='margin-top:12px'>شراء</button>")+
     "<button class='big pb' id='bgbk' style='margin-top:8px'>رجوع</button>";
   w.className="wh on";
   $("whx").onclick=function(){w.className="wh"};
   $("bgbk").onclick=function(){storeScreen("bgs")};
   if($("bgbuy"))$("bgbuy").onclick=function(){
-    if(S.coins<B.price){toast("رصيدك لا يكفي");return}
+    if(B.ruby?(S.ruby||0)<B.ruby:S.coins<B.price){toast(B.ruby?"ياقوتك لا يكفي، تحتاج "+n(B.ruby)+" ياقوتة":"رصيدك لا يكفي");return}
     window.api("buy_background",{p_bg:k}).then(function(st){applyServer(st);save();render();toast("تم شراء "+B.name);bgBuy(k)}).catch(srvErr);
   };
 }
@@ -1614,7 +1614,7 @@ function storeScreen(tab){
     Object.keys(REPAIRERS).forEach(function(t){var R=REPAIRERS[t];h+="<button class='row shp' data-r='"+t+"'><span>›</span><span class='tx'>"+R.name+"<small>"+n(R.price)+" ذهب</small></span><span class='ic'><img class='ci' style='width:48px' src='"+R.img+"' alt=''></span></button>"});
   }else{
     h+="<div class='sec'>الخلفيات</div>";
-    Object.keys(BGS).forEach(function(k){var B=BGS[k];h+="<button class='row shp' data-g='"+k+"'><span>›</span><span class='tx'>"+B.name+"<small>"+(S.bgs.indexOf(k)>=0?"مملوكة":n(B.price)+" ذهب")+"</small></span><span class='ic'><img class='ci' style='width:56px;border-radius:4px' src='"+B.img+"' alt=''></span></button>"});
+    Object.keys(BGS).forEach(function(k){var B=BGS[k];h+="<button class='row shp' data-g='"+k+"'><span>›</span><span class='tx'>"+B.name+"<small>"+(S.bgs.indexOf(k)>=0?"مملوكة":n(B.ruby||B.price)+(B.ruby?" ياقوتة":" ذهب"))+"</small></span><span class='ic'><img class='ci' style='width:56px;border-radius:4px' src='"+B.img+"' alt=''></span></button>"});
   }
   h+="<button class='big' id='bks3' style='margin-top:14px'>رجوع</button>";
   w.innerHTML=h;w.className="wh on";
