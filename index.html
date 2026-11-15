@@ -1407,7 +1407,7 @@ function applyBgCss(){
   else if(S.bg&&BGS[S.bg])sc.style.background="url('"+bgImg(S.bg)+"') "+(BGS[S.bg].pos||"center")+" / "+(BGS[S.bg].size||"100% 100%")+" no-repeat #0b1a14";
   else sc.style.background="";
 }
-function applyBg(k,cb){if(ruined(S)){toast("محيطك مدمَّر — لا يمكنك تغيير الخلفية الآن");return}window.api("set_background",{p_bg:k}).then(function(st){applyServer(st);save();applyBgCss();toast(k==="default"?"عادت الخلفية الافتراضية":"تم تعيين "+BGS[k].name);if(cb)cb()}).catch(srvErr)}
+function applyBg(k,cb){var wasRuin=ruined(S);(wasRuin?window.api("end_ruin",{}).then(function(st){applyServer(st);S.ruinUntil=0}):Promise.resolve()).then(function(){return window.api("set_background",{p_bg:k})}).then(function(st){applyServer(st);save();applyBgCss();toast(wasRuin?"انتهى التدمير وتم تغيير الخلفية":(k==="default"?"عادت الخلفية الافتراضية":"تم تعيين "+BGS[k].name));if(cb)cb()}).catch(srvErr)}
 function bgDetail(k){
   var w=$("wh"),isDef=k==="default",nm=isDef?"الخلفية الافتراضية":BGS[k].name;
   var cur=(isDef&&!S.bg)||(!isDef&&S.bg===k);
