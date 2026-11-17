@@ -1018,7 +1018,7 @@ function place(i,p){
   e.tgt=key;
 }
 function ty(i){return TYPES[S.b[i].type||"small"]}
-function cap(i){var s=S.b[i];return (s.p!=="idle"&&s.tcap)?s.tcap:ty(i).cap*luckMult(i)}
+function cap(i){var s=S.b[i];return (s.p!=="idle"&&s.tcap)?s.tcap:Math.max(1,Math.floor(ty(i).cap*luckMult(i)*Math.min(1,(s.hp==null?shipMax(i):s.hp)/shipMax(i))))}
 function luckMult(i){return S.crew.some(function(c){return c.ship===i&&c.t==="luck"})?2:1}
 function dur(i){var s=S.b[i];return (s.p!=="idle"&&s.tdur)?s.tdur:ty(i).dur/boostOf(i)}
 function remTxt(ms){var s=Math.max(0,Math.ceil(ms/1000)),hh=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;function z(v){return (v<10?"0":"")+v}return hh?hh+":"+z(m)+":"+z(x):z(m)+":"+z(x)}
