@@ -102,6 +102,9 @@ body{font-family:"Noto Naskh Arabic","Geeza Pro","Segoe UI",Tahoma,serif;color:v
 .bars .pc{position:absolute;top:-1.75px;left:0;right:0;height:7px;line-height:7px;text-align:center;font-size:6.5px;font-weight:700;color:#fff;text-shadow:0 1px 2px #000,0 0 3px #000;white-space:nowrap}
 .nukebar{position:absolute;left:12%;right:12%;top:calc(min(100vw,480px)*0.165 + 6px);height:26px;z-index:5;overflow:hidden;display:none;border-radius:5px;background:linear-gradient(#e8274a,#b3112f 55%,#8e0a22);border:1px solid #ff9fb0;box-shadow:0 2px 6px #0008,inset 0 1px 0 #ffffff55;cursor:pointer;padding:0;margin:0;font-family:inherit}
 .nukebar.on{display:block}
+.admfab{position:absolute;right:12%;top:calc(min(100vw,480px)*0.165 + 38px);z-index:5;display:none;background:linear-gradient(#a02a2a,#6d1515);color:#fff;border:1px solid #ff9fb0;border-radius:6px;padding:4px 12px;font:inherit;font-size:12.5px;font-weight:700;box-shadow:0 2px 6px #0008;cursor:pointer}
+.admfab.on{display:block}
+.scene.vis .admfab{display:none!important}
 .nukebar .nkt{position:absolute;top:0;left:0;height:100%;line-height:26px;white-space:nowrap;color:#fff;font-weight:700;font-size:13.5px;text-shadow:0 1px 2px #0009;transform:translateX(-100%);animation:nkgo 20s linear infinite;pointer-events:none}
 @keyframes nkgo{from{left:0;transform:translateX(-100%)}to{left:100%;transform:translateX(0)}}
 .nkp-back{position:absolute;inset:0;z-index:13;background:#000a;display:none}
@@ -441,9 +444,30 @@ button:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
 @keyframes lbshake{0%,100%{transform:rotate(0)}20%{transform:rotate(-7deg)}45%{transform:rotate(7deg)}70%{transform:rotate(-4deg)}}
 .lbt{padding:12px 16px 0;text-align:center;color:#e06a00;font-weight:700}
 .lbn{padding:0 16px 6px;text-align:center;color:#555;font-size:.85em}
+.lbx .lp{border-radius:10px;padding:8px 4px;text-align:center;font-size:.78em;background:#f4f1e6;border:2px solid #bbb;min-height:96px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#333;line-height:1.3}
+.lp.vr{border-color:#e6b800;background:#fff6cc}.lp.r{border-color:#8a4fd1;background:#f0e6ff}.lp.c{border-color:#9a9a9a}
+.lp.miss{opacity:.55}.lp.mine{box-shadow:0 0 0 3px #2e9e4f}
+.lp img{width:42px;height:42px;object-fit:contain}.lp .le{font-size:30px;line-height:1}
+.lp small{color:#666;font-size:.9em}
+.dg{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;padding:12px 12px 6px}
+.dg .lp{min-height:84px;padding:5px 2px;font-size:.66em;gap:2px}
+.dg .lp img{width:32px;height:32px}.dg .lp .le{font-size:24px}
+.ac{background:#f4f1e6;border:1px solid #c9bfa0;border-radius:10px;margin:8px 12px;padding:10px;color:#333;line-height:1.6;font-size:.92em}
+.ac b{font-size:1.05em}.ac ol{margin:4px 0;padding-right:22px}
+.tg{background:#2e6fb5;color:#fff;border-radius:6px;padding:1px 7px;font-size:.75em;margin-right:6px}
+.sm{color:#666;font-size:.85em}
+.ab{border:0;border-radius:8px;padding:6px 10px;margin:3px 2px;background:#2e6fb5;color:#fff;font:inherit;font-size:.85em;cursor:pointer}.ab.rd{background:#b53a2e}
+.ain{width:100%;box-sizing:border-box;padding:8px;border-radius:8px;border:1px solid #999;font:inherit;margin:4px 0;background:#fff;color:#222}
+.stab.adt{overflow-x:auto;white-space:nowrap}.stab.adt button{flex:0 0 auto;padding:8px 14px}
+.dg .lp.dim{opacity:.42;filter:grayscale(.5)}
+.dg .lp.ok{opacity:1;filter:none;border-color:#2e9e4f;background:#eaf8ee}
+.dg .lp.today{box-shadow:0 0 0 3px #f2b21a}
+.dg button.lp.nx{font-family:inherit;cursor:pointer;opacity:1;filter:none;border-color:#f2b21a;background:#fff8e1;animation:dgp 1.4s infinite}
+@keyframes dgp{50%{box-shadow:0 0 0 5px #f2b21a88}}
+.dg .lp i{font-style:normal;font-weight:bold;color:#a05a00;font-size:1.05em}
 
 .stab.gf button{font-size:.86em}
-.frame .giftstar{position:absolute;left:96%;top:22%;width:4.4%;height:auto;aspect-ratio:1/1;transform:translate(-50%,-50%);z-index:3}
+.frame .giftstar{position:absolute;left:95.3%;top:40%;width:4.4%;height:auto;aspect-ratio:1/1;transform:translate(-50%,-50%);z-index:3}
 .frame .giftstar.on{display:block}
 .wh.fb{padding-bottom:calc(64px + env(safe-area-inset-bottom));box-sizing:border-box}
 .wh [data-fb]{display:none!important}
@@ -598,6 +622,7 @@ button:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
     <div class="pmenu" id="pmenu"><button id="pm_edit">تعديل الملف الشخصي</button><button id="pm_set">الإعدادات</button></div>
   </div>
   <button class="nukebar" id="nukebar" aria-label="الذريات الأخيرة"><span class="nkt" id="nkt"></span></button>
+  <button class="admfab" id="admfab">لوحة الإدارة</button>
   <div class="nkp-back" id="nkback"><div class="nkp" id="nkp"><div class="rib">الذريات الأخيرة</div><button class="x" id="nkx" aria-label="إغلاق">✕</button><div class="lst" id="nklist"></div><div class="nkf">آخر 10 ضربات بالقنبلة الذرية</div></div></div>
   <div class="wh" id="wh"></div>
   <button id="wback" type="button" aria-label="رجوع">رجوع</button>
@@ -748,6 +773,7 @@ async function afterLogin(user){
   try{st=await window.api("game_state",{})}catch(e){showFail("تعذّر تحميل حالة اللعبة: "+tr(e));return}
   window.SRV=st;
   startGame();
+  setTimeout(function(){if(window.giftCheck)window.giftCheck();if(window.bootExtras)window.bootExtras()},1500);
   if(useLocal||!cloudOk){pend=true;push()}else dot("ok");
 }
 async function login(){
@@ -1984,30 +2010,352 @@ function requestsLoad(){
     });
   }).catch(function(e){if($("frlist"))box.innerHTML="<div class='rkmsg'>"+esc((e&&e.message)||"تعذّر التحميل")+"</div>"});
 }
-var LUCKY_SLOTS=9,GF={tab:"lucky"};
-var GFTABS=[["lucky","صندوق الحظ"],["reg","جائزة التسجيل الإضافية"]];
+var LUCKY_SLOTS=9,GF={tab:"lucky",L:null,at:0,D:null,C:null};
+var GFTABS=[["lucky","صندوق الحظ"],["reg","جوائز الدخول اليومي"]];
+var LKR={vr:"نادر جدًا جدًا",r:"نادر",c:"عادي"};
+function lkName(p){
+  var k=p.key,x=(p.qty>1&&p.kind!=="ruby"&&p.kind!=="coins")?" ×"+p.qty:"";
+  return lkName0(p)+x;
+}
+function lkName0(p){
+  var k=p.key;
+  if(p.kind==="crew")return "طاقم "+(CREW[k]?CREW[k].name:k);
+  if(p.kind==="weapon")return WEAPONS[k]?WEAPONS[k].name:k;
+  if(p.kind==="repairer")return REPAIRERS[k]?REPAIRERS[k].name:k;
+  if(p.kind==="bg")return "خلفية "+(BGS[k]?BGS[k].name:k);
+  if(p.kind==="ruby")return n(p.qty)+" ياقوتة حمراء";
+  return n(p.qty)+" ذهب";
+}
+function lkIcon(p){
+  var o=p.kind==="crew"?CREW[p.key]:p.kind==="weapon"?WEAPONS[p.key]:p.kind==="repairer"?REPAIRERS[p.key]:p.kind==="bg"?BGS[p.key]:null;
+  if(o&&o.img)return "<img src='"+o.img+"' alt=''>";
+  return "<span class='le'>"+(p.kind==="ruby"?"♦️":p.kind==="coins"?"🪙":"🎁")+"</span>";
+}
+function lkNow(){return GF.L.server_ms+(Date.now()-GF.at)}
+function luckyLoad(){
+  if(!window.api){return}
+  window.api("lucky_state",{}).then(function(r){GF.L=r;GF.at=Date.now();if(GF.tab==="lucky"&&/\bon\b/.test($("wh").className))giftScreen()}).catch(srvErr);
+}
+function luckyHtml(){
+  var L=GF.L,hh="",ms=Math.max(0,L.reset_ms-lkNow()),hr=Math.floor(ms/3600000),mn=Math.floor(ms%3600000/60000);
+  hh+="<div class='sec'>"+(L.left>0?"اختر صندوقًا — بقي لك "+L.left+(L.left===1?" صندوق":L.left===2?" صندوقان":" صناديق"):"فتحت صناديق اليوم، هذه الفرص التي فاتتك")+"</div><div class='lbx'>";
+  L.boxes.forEach(function(b){
+    if(b.prize){
+      hh+="<div class='lp "+b.prize.rarity+(b.opened?" mine":" miss")+"'>"+lkIcon(b.prize)+"<b>"+esc(lkName(b.prize))+"</b><small>"+LKR[b.prize.rarity]+(b.opened?" · حصلت عليها":"")+"</small></div>";
+    }else hh+="<button data-i='"+b.slot+"' aria-label='صندوق "+(b.slot+1)+"'><img src='"+LUCKYIMG+"' alt=''></button>";
+  });
+  hh+="</div><div class='lbn'>تتجدد الصناديق بعد "+hr+" ساعة و"+mn+" دقيقة</div>";
+  return hh;
+}
+function luckyOpen(i,b){
+  b.classList.remove("shake");void b.offsetWidth;b.classList.add("shake");
+  window.api("lucky_open",{p_slot:i}).then(function(r){
+    applyServer(r.st);save();render();
+    GF.L=r.lucky;GF.at=Date.now();giftCheck();
+    var w=r.won;
+    $("box").className="box dark";
+    $("box").innerHTML="<h2>🎁 حصلت على</h2><div style='text-align:center;margin:6px 0'>"+lkIcon(w).replace("<img ","<img style='width:70px;height:70px;object-fit:contain' ")+"</div><div style='text-align:center;color:#fff;font-size:1.1em'>"+esc(lkName(w))+"</div><div style='text-align:center;color:#ccc;margin:4px 0 10px'>"+LKR[w.rarity]+"</div><button class='opt' id='lw'>موافق</button>";
+    $("modal").className="modal on";
+    $("lw").onclick=function(){closeM();giftScreen()};
+  }).catch(srvErr);
+}
+function showPrize(w,title){
+  $("box").className="box dark";
+  $("box").innerHTML="<h2>"+title+"</h2><div style='text-align:center;margin:6px 0'>"+lkIcon(w).replace("<img ","<img style='width:70px;height:70px;object-fit:contain' ")+"</div><div style='text-align:center;color:#fff;font-size:1.1em'>"+esc(lkName(w))+"</div><button class='opt' id='lw' style='margin-top:10px'>موافق</button>";
+  $("modal").className="modal on";
+  $("lw").onclick=function(){closeM();if($("wh")&&/\bon\b/.test($("wh").className)&&GF.tab==="reg")giftScreen()};
+}
+function dailyLoad(){
+  if(!window.api)return;
+  window.api("login_state",{}).then(function(r){GF.D=r;if(GF.tab==="reg"&&/\bon\b/.test($("wh").className))giftScreen()}).catch(srvErr);
+}
+function dailyHtml(){
+  var D=GF.D,st=(D.streak>=15&&!D.claimed_today)?0:D.streak,nx=D.claimed_today?0:st+1,hh="<div class='sec'>جوائز تسجيل الدخول اليومي</div><div class='dg'>";
+  D.rewards.forEach(function(r){
+    var ok=r.day<=st,td=ok&&r.day===st&&D.claimed_today,inner="<i>"+r.day+"</i>"+lkIcon(r)+"<b>"+esc(lkName(r))+"</b>";
+    if(r.day===nx)hh+="<button class='lp nx' data-d='"+r.day+"'>"+inner+"</button>";
+    else hh+="<div class='lp "+(ok?"ok":"dim")+(td?" today":"")+"'>"+inner+"</div>";
+  });
+  hh+="</div><div class='lbn'>"+(D.claimed_today?"استلمت هدية اليوم. عد غدًا للهدية التالية":"اضغط على هدية اليوم لتستلمها")+"<br>إن فاتك يوم تبدأ السلسلة من جديد</div>";
+  return hh;
+}
+function giftCheck(){
+  if(!window.api)return;
+  Promise.all([window.api("login_state",{}).catch(function(){return null}),window.api("lucky_state",{}).catch(function(){return null})]).then(function(a){
+    var d=a[0],l=a[1];
+    if(d)GF.D=d;
+    if(l){GF.L=l;GF.at=Date.now()}
+    setGiftDue(!!((d&&!d.claimed_today)||(l&&l.left>0)));
+  });
+}
+window.giftCheck=giftCheck;
+function dailyClaim(){
+  if(!window.api)return;
+  window.api("claim_login_reward",{}).then(function(r){
+    GF.D=r.daily;giftCheck();
+    if(r.claimed){applyServer(r.st);save();render();showPrize(r.prize,"🎁 هدية اليوم "+r.day+" من 15")}
+    else giftScreen();
+  }).catch(srvErr);
+}
+var ADM={is:false},AD={tab:"player",q:"",auto:false},CN={off:0};
+var CKIND={caught:"أكثر صيدًا",sold:"أكثر سمك مباع",attack:"أعلى ضرر هجمات",steal:"أكثر سمك مسروق",donate:"أكثر تبرعًا للقبيلة",manual:"مسابقة يدوية"};
+var PKINDS=[["coins","ذهب"],["ruby","ياقوت"],["crew","طاقم"],["weapon","سلاح"],["repairer","مصلح"],["bg","خلفية"]];
+function p2(v){return v<10?"0"+v:""+v}
+function fmtT(ms){var d=new Date(ms);return d.getFullYear()+"/"+p2(d.getMonth()+1)+"/"+p2(d.getDate())+" "+p2(d.getHours())+":"+p2(d.getMinutes())}
+function lenTxt(ms){var m=Math.max(0,Math.floor(ms/60000)),h=Math.floor(m/60),d=Math.floor(h/24);return d>0?d+" يوم و"+(h%24)+" ساعة":h>0?h+" ساعة و"+(m%60)+" دقيقة":m+" دقيقة"}
+function cnow(){return Date.now()+CN.off}
+function pzHtml(id,q){return "<select class='ain' id='"+id+"k'>"+PKINDS.map(function(k){return "<option value='"+k[0]+"'>"+k[1]+"</option>"}).join("")+"</select><select class='ain' id='"+id+"y' style='display:none'></select><input class='ain' id='"+id+"q' type='number' min='1' placeholder='الكمية' value='"+(q===undefined?1:q)+"'>"}
+function pzBind(id){
+  var k=$(id+"k"),y=$(id+"y");
+  function upd(){
+    var v=k.value,src=v==="crew"?CREW:v==="weapon"?WEAPONS:v==="repairer"?REPAIRERS:v==="bg"?BGS:null;
+    if(!src){y.style.display="none";y.innerHTML="";return}
+    y.style.display="block";y.innerHTML=Object.keys(src).map(function(x){return "<option value='"+x+"'>"+esc(src[x].name)+"</option>"}).join("");
+  }
+  k.onchange=upd;upd();
+}
+function pzVal(id){var k=$(id+"k").value,q=Math.floor(+$(id+"q").value);return {kind:k,key:(k==="coins"||k==="ruby")?null:$(id+"y").value,qty:q}}
+function admModal(html,bind){$("box").className="box dark";$("box").innerHTML=html;$("modal").className="modal on";if(bind)bind()}
+function admCall(name,args,cb,msg){window.api(name,args).then(function(r){toast(msg||"تم");if(cb)cb(r)}).catch(srvErr)}
+function conCard(c,adm){
+  var now=cnow(),act=c.status==="active",up=act&&c.starts_ms>now,live=act&&!up;
+  var st=up?"تبدأ بعد "+lenTxt(c.starts_ms-now):live?"متبقي "+lenTxt(c.ends_ms-now):c.status==="ended"?"انتهت":"ملغاة";
+  var hh="<div class='ac'><b>"+esc(c.title)+"</b><span class='tg'>"+CKIND[c.kind]+"</span><div class='sm'>"+st+" · من "+fmtT(c.starts_ms)+" إلى "+fmtT(c.ends_ms)+"</div>";
+  if(c.descr)hh+="<div>"+esc(c.descr)+"</div>";
+  if(c.prizes&&c.prizes.length)hh+="<div class='sm'>الجوائز: "+c.prizes.map(function(p){return "المركز "+p.rank+": "+esc(lkName(p))}).join(" · ")+"</div>";
+  if(c.kind!=="manual"&&(live||c.status==="ended")){
+    if(c.top&&c.top.length)hh+="<ol>"+c.top.map(function(t){return "<li>"+esc(t.name)+" — "+n(t.score)+"</li>"}).join("")+"</ol>";
+    else hh+="<div class='sm'>لا مشاركات بعد</div>";
+  }
+  if(!adm&&live&&c.kind!=="manual")hh+="<div><b>ترتيبك:</b> "+(c.my_score>0?c.my_rank:"—")+" · نقاطك: "+n(c.my_score)+"</div>";
+  if(c.status==="ended"&&c.winners&&c.winners.length)hh+="<div class='sm'>الفائزون: "+c.winners.map(function(w){return w.rank+". "+esc(w.name)+(w.score?" ("+n(w.score)+")":"")}).join(" · ")+"</div>";
+  if(adm&&act){
+    hh+="<div><button class='ab rd' data-a='end' data-id='"+c.id+"'>إنهاء الآن</button><button class='ab rd' data-a='cancel' data-id='"+c.id+"'>إلغاء</button><button class='ab' data-a='ext' data-id='"+c.id+"'>تمديد</button>"+(c.kind==="manual"?"<button class='ab' data-a='award' data-id='"+c.id+"'>منح جائزة</button>":"")+"</div>";
+  }
+  return hh+"</div>";
+}
+function conRank(box){
+  if(!window.api){box.innerHTML="<div class='rkmsg'>المسابقات متاحة في النسخة الأونلاين.</div>";return}
+  box.innerHTML="<div class='rkmsg'>جارٍ التحميل…</div>";
+  window.api("contests_list",{}).then(function(r){
+    if(RK.tab!=="comp"||!$("rklist"))return;
+    CN.off=r.server_ms-Date.now();
+    box.innerHTML=r.rows.length?r.rows.map(function(c){return conCard(c,false)}).join(""):"<div class='rkmsg'>لا توجد مسابقات الآن.</div>";
+  }).catch(function(e){if($("rklist"))box.innerHTML="<div class='rkmsg'>"+esc((e&&e.message)||"تعذّر التحميل")+"</div>"});
+}
+function conLoad(){
+  if(!window.api)return;
+  window.api("contests_list",{}).then(function(r){GF.C=r;CN.off=r.server_ms-Date.now();if(GF.tab==="con"&&/\bon\b/.test($("wh").className))giftScreen()}).catch(srvErr);
+}
+function conHtml(){
+  var hh="<div class='sec'>المسابقات</div>";
+  if(!GF.C.rows.length)return hh+"<div class='rkmsg' style='color:#555'>لا توجد مسابقات الآن</div>";
+  return hh+GF.C.rows.map(function(c){return conCard(c,false)}).join("");
+}
+var ATABS=[["player","لاعب"],["contests","مسابقات"],["reports","بلاغات"],["chat","دردشة"],["ann","إعلان"],["rew","جوائز"]];
+function adminScreen(tab){
+  if(tab)AD.tab=tab;
+  var w=$("wh"),hh="<header><span>لوحة الإدارة</span><button id='whx' aria-label='إغلاق'>✕</button></header>";
+  hh+="<div class='stab gf adt'>"+ATABS.map(function(t){return "<button data-k='"+t[0]+"'"+(t[0]===AD.tab?" class='on'":"")+">"+t[1]+"</button>"}).join("")+"</div><div id='adb'></div>";
+  hh+="<button class='big' id='lbk' style='margin-top:10px'>رجوع</button>";
+  w.innerHTML=hh;w.className="wh on";
+  $("whx").onclick=function(){w.className="wh"};
+  $("lbk").onclick=function(){w.className="wh"};
+  var ts=w.querySelectorAll(".stab button"),k;
+  for(k=0;k<ts.length;k++)ts[k].onclick=function(){adminScreen(this.getAttribute("data-k"))};
+  var f=AD.tab==="player"?admPlayer:AD.tab==="contests"?admContests:AD.tab==="reports"?admReports:AD.tab==="chat"?admChat:AD.tab==="ann"?admAnn:admRew;
+  f();
+}
+function admLoading(){$("adb").innerHTML="<div class='rkmsg' style='color:#555'>جارٍ التحميل…</div>"}
+function admPlayer(){
+  $("adb").innerHTML="<div class='sec'>البحث عن لاعب</div><div style='display:flex;gap:6px;padding:8px 12px'><input class='ain' id='apq' placeholder='المعرّف أو الاسم' style='margin:0'><button class='ab' id='apg' style='margin:0;padding:0 18px'>بحث</button></div><div id='apr'></div>";
+  $("apq").value=AD.q||"";
+  $("apg").onclick=function(){admFind($("apq").value)};
+  $("apq").onkeydown=function(e){if(e.key==="Enter")admFind(this.value)};
+  if(AD.auto&&AD.q){AD.auto=false;admFind(AD.q)}
+}
+function admFind(q){
+  AD.q=String(q||"").trim();
+  window.api("admin_find",{p_q:AD.q}).then(function(r){admRows(r.rows||[])}).catch(srvErr);
+}
+function admRows(rows){
+  var box=$("apr");if(!box)return;
+  if(!rows.length){box.innerHTML="<div class='rkmsg' style='color:#555'>لا نتائج</div>";return}
+  box.innerHTML=rows.map(function(r,i){
+    var fl=[];
+    if(r.is_admin)fl.push("مشرف");
+    if(r.banned_ms)fl.push("محظور حتى "+fmtT(r.banned_ms));
+    if(r.muted_ms)fl.push("مكتوم حتى "+fmtT(r.muted_ms));
+    if(r.steal_ban_ms)fl.push("محبوس عن السرقة");
+    if(r.ruin_ms)fl.push("محيطه مدمَّر");
+    return "<div class='ac'><b>"+esc(r.name)+"</b> <span class='sm'>"+esc(r.public_id)+"</span>"
+      +"<div class='sm'>مستوى "+r.level+" · ذهب "+n(r.coins)+" · ياقوت "+n(r.ruby)+(r.tribe?" · قبيلة "+esc(r.tribe):"")+"</div>"
+      +"<div class='sm'>هجمات: "+r.attacks_made+" له / "+r.attacks_got+" عليه · سرقات: "+r.steals_made+" له / "+r.steals_got+" عليه</div>"
+      +"<div class='sm'>سفن: "+(r.ships&&r.ships.length?r.ships.map(function(t){return esc((TYPES[t]&&TYPES[t].name)||t)}).join("، "):"—")+"</div>"
+      +(fl.length?"<div style='color:#b53a2e;font-size:.85em'>"+fl.join(" · ")+"</div>":"")
+      +"<div><button class='ab' data-a='grant' data-i='"+i+"'>منح</button><button class='ab' data-a='mute' data-i='"+i+"'>كتم</button><button class='ab' data-a='ban' data-i='"+i+"'>حظر</button><button class='ab' data-a='name' data-i='"+i+"'>تغيير الاسم</button><button class='ab' data-a='avatar' data-i='"+i+"'>حذف الصورة</button><button class='ab' data-a='tribe' data-i='"+i+"'>تصفير القبيلة</button><button class='ab' data-a='limits' data-i='"+i+"'>رفع الحبس والتدمير</button><button class='ab rd' data-a='del' data-i='"+i+"'>حذف الحساب</button></div></div>";
+  }).join("");
+  box.onclick=function(e){
+    var t=e.target.closest("button[data-a]");if(!t)return;
+    var r=rows[+t.getAttribute("data-i")],a=t.getAttribute("data-a"),re=function(){admFind(AD.q)};
+    if(a==="grant"){
+      admModal("<h2>منح "+esc(r.name)+"</h2>"+pzHtml("ag")+"<button class='opt' id='ago'>منح</button><button class='opt' id='amc'>إلغاء</button>",function(){
+        pzBind("ag");$("amc").onclick=closeM;
+        $("ago").onclick=function(){var v=pzVal("ag");if(!(v.qty>=1)){toast("اكتب كمية صحيحة");return}closeM();admCall("admin_grant",{p_user:r.user_id,p_kind:v.kind,p_key:v.key,p_qty:v.qty},re,"تم المنح")};
+      });
+    }else if(a==="mute"||a==="ban"){
+      var op=[[1,"ساعة"],[6,"6 ساعات"],[24,"يوم"],[72,"3 أيام"],[168,"أسبوع"],[87600,"دائم"],[0,a==="mute"?"رفع الكتم":"رفع الحظر"]];
+      admModal("<h2>"+(a==="mute"?"كتم ":"حظر ")+esc(r.name)+"</h2><select class='ain' id='amh'>"+op.map(function(o){return "<option value='"+o[0]+"'>"+o[1]+"</option>"}).join("")+"</select><button class='opt' id='ago'>تنفيذ</button><button class='opt' id='amc'>إلغاء</button>",function(){
+        $("amc").onclick=closeM;
+        $("ago").onclick=function(){var h=+$("amh").value;closeM();admCall(a==="mute"?"admin_mute":"admin_ban",{p_user:r.user_id,p_hours:h},re)};
+      });
+    }else if(a==="name"){
+      admModal("<h2>تغيير اسم "+esc(r.name)+"</h2><input class='ain' id='anm' maxlength='16' placeholder='الاسم الجديد'><button class='opt' id='ago'>حفظ</button><button class='opt' id='amc'>إلغاء</button>",function(){
+        $("amc").onclick=closeM;
+        $("ago").onclick=function(){var v=$("anm").value.trim();if(v.length<2){toast("الاسم من 2 إلى 16 حرفًا");return}closeM();admCall("admin_set_name",{p_user:r.user_id,p_name:v},re)};
+      });
+    }else if(a==="avatar"){ask("حذف صورة "+esc(r.name)+"؟","حذف",function(){admCall("admin_clear_avatar",{p_user:r.user_id},re)})}
+    else if(a==="tribe"){ask("تصفير بيان وشعار قبيلة "+esc(r.name)+"؟","تصفير",function(){admCall("admin_reset_tribe_text",{p_user:r.user_id},re)})}
+    else if(a==="limits"){ask("رفع حبس السرقة وتدمير المحيط عن "+esc(r.name)+"؟","رفع",function(){admCall("admin_clear_limits",{p_user:r.user_id},re)})}
+    else if(a==="del"){ask("حذف حساب "+esc(r.name)+" نهائيًا؟ لا يمكن التراجع.","حذف نهائي",function(){admCall("admin_delete_user",{p_user:r.user_id},re,"حُذف الحساب")})}
+  };
+}
+function admContests(){
+  admLoading();
+  window.api("admin_contest_list",{}).then(function(r){
+    CN.off=r.server_ms-Date.now();
+    var box=$("adb");if(!box)return;
+    box.innerHTML="<div style='padding:8px 12px'><button class='ab' id='acn' style='padding:9px 16px'>＋ مسابقة جديدة</button></div><div id='acl'>"+(r.rows.length?r.rows.map(function(c){return conCard(c,true)}).join(""):"<div class='rkmsg' style='color:#555'>لا مسابقات</div>")+"</div>";
+    $("acn").onclick=admNewContest;
+    $("acl").onclick=function(e){
+      var t=e.target.closest("button[data-a]");if(!t)return;
+      var id=+t.getAttribute("data-id"),a=t.getAttribute("data-a"),c=r.rows.filter(function(x){return x.id===id})[0],re=function(){admContests()};
+      if(a==="end")ask("إنهاء المسابقة الآن وتوزيع الجوائز؟","إنهاء",function(){admCall("admin_contest_end",{p_id:id},re,"انتهت المسابقة")});
+      else if(a==="cancel")ask("إلغاء المسابقة بلا جوائز؟","إلغاء المسابقة",function(){admCall("admin_contest_cancel",{p_id:id},re)});
+      else if(a==="ext")admModal("<h2>تمديد المسابقة</h2><div class='sm' style='color:#ccc'>الوقت الجديد للنهاية</div><input class='ain' id='ace' type='datetime-local'><button class='opt' id='ago'>تمديد</button><button class='opt' id='amc'>إلغاء</button>",function(){
+        $("amc").onclick=closeM;
+        $("ago").onclick=function(){var v=$("ace").value;if(!v){toast("اختر الوقت");return}closeM();admCall("admin_contest_extend",{p_id:id,p_end:new Date(v).toISOString()},re)};
+      });
+      else if(a==="award")admModal("<h2>منح جائزة</h2><select class='ain' id='acr'>"+c.prizes.map(function(p){return "<option value='"+p.rank+"'>المركز "+p.rank+": "+esc(lkName(p))+"</option>"}).join("")+"</select><input class='ain' id='acu' placeholder='معرّف اللاعب'><button class='opt' id='ago'>منح</button><button class='opt' id='amc'>إلغاء</button>",function(){
+        $("amc").onclick=closeM;
+        $("ago").onclick=function(){
+          var q=$("acu").value.trim(),rk=+$("acr").value;if(!q){toast("اكتب معرّف اللاعب");return}
+          window.api("admin_find",{p_q:q}).then(function(f){
+            var m=(f.rows||[]).filter(function(x){return String(x.public_id).toUpperCase()===q.toUpperCase()})[0];
+            if(!m){toast("لم يُعثر على لاعب بهذا المعرّف");return}
+            closeM();admCall("admin_contest_award",{p_id:id,p_user:m.user_id,p_rank:rk},re,"مُنحت الجائزة لـ "+m.name);
+          }).catch(srvErr);
+        };
+      });
+    };
+  }).catch(srvErr);
+}
+function admNewContest(){
+  var h="<h2>مسابقة جديدة</h2><select class='ain' id='acd'>"+Object.keys(CKIND).map(function(k){return "<option value='"+k+"'>"+CKIND[k]+"</option>"}).join("")+"</select><input class='ain' id='act' maxlength='60' placeholder='عنوان المسابقة'><input class='ain' id='acx' maxlength='300' placeholder='وصف (اختياري)'>";
+  h+="<div class='sm' style='color:#ccc'>البداية (فارغة = الآن)</div><input class='ain' id='acs' type='datetime-local'><div class='sm' style='color:#ccc'>النهاية</div><input class='ain' id='ace' type='datetime-local'>";
+  var i;for(i=1;i<=3;i++)h+="<div class='sm' style='color:#ccc;margin-top:6px'>جائزة المركز "+i+" (الكمية فارغة = بلا جائزة)</div>"+pzHtml("cp"+i,"");
+  h+="<button class='opt' id='ago'>إنشاء المسابقة</button><button class='opt' id='amc'>إلغاء</button>";
+  admModal(h,function(){
+    for(var j=1;j<=3;j++)pzBind("cp"+j);
+    var d=new Date(Date.now()+86400000);d.setMinutes(d.getMinutes()-d.getTimezoneOffset());$("ace").value=d.toISOString().slice(0,16);
+    $("amc").onclick=closeM;
+    $("ago").onclick=function(){
+      var t=$("act").value.trim(),e=$("ace").value,s=$("acs").value;
+      if(t.length<2){toast("اكتب عنوانًا");return}
+      if(!e){toast("اختر وقت النهاية");return}
+      var pz=[],k;for(k=1;k<=3;k++){var v=pzVal("cp"+k);if(v.qty>=1)pz.push({rank:k,kind:v.kind,key:v.key,qty:v.qty})}
+      closeM();
+      admCall("admin_contest_create",{p_kind:$("acd").value,p_title:t,p_desc:$("acx").value.trim(),p_start:s?new Date(s).toISOString():null,p_end:new Date(e).toISOString(),p_prizes:pz},admContests,"أُنشئت المسابقة");
+    };
+  });
+}
+function admReports(){
+  admLoading();
+  window.api("admin_reports",{}).then(function(r){
+    var box=$("adb");if(!box)return;
+    box.innerHTML="<div class='sec'>البلاغات</div>"+(r.rows.length?r.rows.map(function(x,i){
+      return "<div class='ac'><b>"+esc(x.target)+"</b> <span class='sm'>بلّغ عنه "+esc(x.reporter)+" · "+fmtT(x.created_ms)+"</span><div>"+esc(x.kind||"")+(x.reason?" — "+esc(x.reason):"")+"</div>"+(x.context?"<div class='sm'>"+esc(x.context)+"</div>":"")+"<div><button class='ab' data-a='open' data-i='"+i+"'>فتح اللاعب</button><button class='ab rd' data-a='del' data-i='"+i+"'>حذف البلاغ</button></div></div>";
+    }).join(""):"<div class='rkmsg' style='color:#555'>لا بلاغات</div>");
+    box.onclick=function(e){
+      var t=e.target.closest("button[data-a]");if(!t)return;var x=r.rows[+t.getAttribute("data-i")];
+      if(t.getAttribute("data-a")==="open"){AD.q=x.target;AD.auto=true;adminScreen("player")}
+      else admCall("admin_delete_report",{p_id:x.id},admReports);
+    };
+  }).catch(srvErr);
+}
+function admChat(){
+  admLoading();
+  window.api("admin_chat",{}).then(function(r){
+    var box=$("adb");if(!box)return;
+    box.innerHTML="<div class='sec'>الدردشة العامة</div>"+(r.rows.length?r.rows.map(function(x,i){
+      return "<div class='ac'><b>"+esc(x.name)+"</b> <span class='sm'>"+fmtT(x.created_ms)+"</span><div>"+esc(x.body)+"</div><div><button class='ab rd' data-a='del' data-i='"+i+"'>حذف الرسالة</button><button class='ab' data-a='mute' data-i='"+i+"'>كتم يوم</button></div></div>";
+    }).join(""):"<div class='rkmsg' style='color:#555'>لا رسائل</div>");
+    box.onclick=function(e){
+      var t=e.target.closest("button[data-a]");if(!t)return;var x=r.rows[+t.getAttribute("data-i")];
+      if(t.getAttribute("data-a")==="del")admCall("admin_delete_msg",{p_id:x.id},admChat);
+      else admCall("admin_mute",{p_user:x.user_id,p_hours:24},admChat,"كُتم لمدة يوم");
+    };
+  }).catch(srvErr);
+}
+function admAnn(){
+  $("adb").innerHTML="<div class='sec'>إعلان لكل اللاعبين</div><div style='padding:8px 12px'><textarea class='ain' id='ant' rows='4' maxlength='400' placeholder='نص الإعلان (يظهر مرة واحدة لكل لاعب عند دخوله)'></textarea><button class='ab' id='ang' style='padding:9px 16px'>نشر الإعلان</button><button class='ab rd' id='ans' style='padding:9px 16px'>إيقاف الإعلان الحالي</button></div>";
+  $("ang").onclick=function(){var v=$("ant").value.trim();if(!v){toast("اكتب نص الإعلان");return}admCall("admin_announce",{p_body:v},function(){$("ant").value=""},"نُشر الإعلان")};
+  $("ans").onclick=function(){admCall("admin_announce",{p_body:""},null,"أُوقف الإعلان")};
+}
+function admRew(){
+  admLoading();
+  window.api("login_state",{}).then(function(D){
+    GF.D=D;var box=$("adb");if(!box)return;
+    box.innerHTML="<div class='sec'>جوائز الدخول اليومي</div>"+D.rewards.map(function(r){
+      return "<div class='ac' style='display:flex;align-items:center;justify-content:space-between'><span><b>اليوم "+r.day+"</b> — "+esc(lkName(r))+"</span><button class='ab' data-d='"+r.day+"'>تعديل</button></div>";
+    }).join("");
+    box.onclick=function(e){
+      var t=e.target.closest("button[data-d]");if(!t)return;var day=+t.getAttribute("data-d");
+      admModal("<h2>جائزة اليوم "+day+"</h2>"+pzHtml("ar")+"<button class='opt' id='ago'>حفظ</button><button class='opt' id='amc'>إلغاء</button>",function(){
+        pzBind("ar");$("amc").onclick=closeM;
+        $("ago").onclick=function(){var v=pzVal("ar");if(!(v.qty>=1)){toast("اكتب كمية صحيحة");return}closeM();admCall("admin_set_login_reward",{p_day:day,p_kind:v.kind,p_key:v.key,p_qty:v.qty},admRew,"حُفظت الجائزة")};
+      });
+    };
+  }).catch(srvErr);
+}
+window.bootExtras=function(){
+  if(!window.api)return;
+  window.api("admin_me",{}).then(function(r){ADM.is=!!(r&&r.is_admin);var b=$("admfab");if(b){b.className="admfab"+(ADM.is?" on":"");b.onclick=function(){adminScreen("player")}}}).catch(function(){});
+  window.api("get_announcement",{}).then(function(a){
+    if(!a||!a.id)return;
+    var seen=null;try{seen=localStorage.getItem("ann_seen")}catch(e){}
+    if(String(seen)===String(a.id))return;
+    try{localStorage.setItem("ann_seen",String(a.id))}catch(e){}
+    $("box").className="box dark";
+    $("box").innerHTML="<h2>📢 إعلان</h2><div style='color:#fff;line-height:1.8;margin:8px 4px;white-space:pre-wrap'>"+esc(a.body)+"</div><button class='opt' id='anx'>موافق</button>";
+    $("modal").className="modal on";$("anx").onclick=closeM;
+  }).catch(function(){});
+};
 function giftScreen(tab){
   if(tab)GF.tab=tab;
   var w=$("wh"),hh="<header><span>الهدايا</span><button id='whx' aria-label='إغلاق'>✕</button></header>";
   hh+="<div class='stab gf'>"+GFTABS.map(function(t){return "<button data-k='"+t[0]+"'"+(t[0]===GF.tab?" class='on'":"")+">"+t[1]+"</button>"}).join("")+"</div>";
   if(GF.tab==="lucky"){
-    hh+="<div class='sec'>اختر صندوقًا</div><div class='lbx'>";
-    var i;
-    for(i=0;i<LUCKY_SLOTS;i++)hh+="<button data-i='"+i+"' aria-label='صندوق "+(i+1)+"'><img src='"+LUCKYIMG+"' alt=''></button>";
-    hh+="</div><div class='lbn'>ستُضاف الهدايا داخل الصناديق قريبًا</div>";
+    if(GF.L&&lkNow()>=GF.L.reset_ms)GF.L=null;
+    if(!GF.L){hh+="<div class='rkmsg' style='color:#555'>جارٍ التحميل…</div>";luckyLoad()}
+    else hh+=luckyHtml();
+  }else if(GF.tab==="con"){
+    if(!GF.C){hh+="<div class='rkmsg' style='color:#555'>جارٍ التحميل…</div>";conLoad()}
+    else hh+=conHtml();
   }else{
-    hh+="<div class='sec'>جائزة التسجيل الإضافية</div><div class='rkmsg'>جائزة التسجيل الإضافية قريبًا…</div>";
+    if(!GF.D){hh+="<div class='rkmsg' style='color:#555'>جارٍ التحميل…</div>";dailyLoad()}
+    else hh+=dailyHtml();
   }
   hh+="<button class='big' id='lbk' style='margin-top:10px'>رجوع</button>";
   w.innerHTML=hh;w.className="wh on";
   $("whx").onclick=function(){w.className="wh"};
   $("lbk").onclick=function(){w.className="wh"};
   var ts=w.querySelectorAll(".stab button"),k;
-  for(k=0;k<ts.length;k++)ts[k].onclick=function(){giftScreen(this.getAttribute("data-k"))};
+  for(k=0;k<ts.length;k++)ts[k].onclick=function(){if(this.getAttribute("data-k")==="con")GF.C=null;giftScreen(this.getAttribute("data-k"))};
+  var nb=w.querySelector(".dg button.nx");if(nb)nb.onclick=dailyClaim;
   var bs=w.querySelectorAll(".lbx button"),j;
   for(j=0;j<bs.length;j++)bs[j].onclick=function(){
-    var b=this;b.classList.remove("shake");void b.offsetWidth;b.classList.add("shake");
-    toast("الهدايا داخل الصناديق قريبًا…");
+    luckyOpen(+this.getAttribute("data-i"),this);
   };
 }
 function subUpgrade(i){
@@ -2197,12 +2545,26 @@ function enemiesScreen(){
   $("enq").oninput=function(){EN.q=this.value.trim().toLowerCase();enemiesDraw()};
   enemiesLoad();
 }
+function enemyInfo(e,r){
+  var now=(EN.srv||Date.now())+(Date.now()-(EN.at||Date.now())),L=[];
+  if(e.last_attack){var a=e.last_attack,w=WEAPONS[a.weapon];
+    L.push("قام بمهاجمتك "+(w?"ب"+w.name+" ":"")+arAgo(now-a.ms)+(a.n>1?" (عدد الهجمات: "+a.n+")":""))}
+  if(e.last_steal){var st=e.last_steal;
+    L.push("لقد قام بسرقة السمك منك "+arAgo(now-st.ms)+(st.n>1?" (عدد السرقات: "+st.n+")":""))}
+  if(!L.length)L.push("هاجمك سابقًا");
+  var h="<h2>"+esc(e.name)+"</h2>";
+  L.forEach(function(t){h+="<div style='color:#ddd;margin:8px 4px;line-height:1.7;font-size:15px'>"+esc(t)+"</div>"});
+  h+="<button class='opt' id='ei1'>انتقام</button><button class='opt' id='ei2'>إلغاء</button>";
+  $("box").className="box dark";$("box").innerHTML=h;$("modal").className="modal on";
+  $("ei2").onclick=closeM;
+  $("ei1").onclick=function(){closeM();if(!window.api){toast("هذه الميزة في النسخة الأونلاين");return}window.api("visit_ocean",{p_user:r.user_id}).then(function(v){visitScreen(v,"enemies")}).catch(srvErr)};
+}
 function enemiesDraw(){
   var box=$("enlist");if(!box)return;
   var all=EN.rows,rows=all.filter(function(e){return !EN.q||String(e.name).toLowerCase().indexOf(EN.q)>=0});
   $("enc").textContent=(rows.length?"1-"+rows.length:"0")+" / "+rows.length;
   box.innerHTML="";
-  if(!all.length){box.innerHTML="<div class='rkmsg' style='color:#555'>لا أعداء. لم يهاجمك أحد بعد.</div>";return}
+  if(!all.length){box.innerHTML="<div class='rkmsg' style='color:#555'>لا أعداء. لم يهاجمك أو يسرق منك أحد بعد.</div>";return}
   if(!rows.length){box.innerHTML="<div class='rkmsg' style='color:#555'>لا توجد نتائج.</div>";return}
   rows.forEach(function(e){
     var r={user_id:e.user_id,public_id:e.public_id,name:e.name,avatar:e.avatar,level:e.level,coins:0,rank:0,is_me:false,is_friend:!!e.is_friend,req_sent:!!e.req_sent,req_in:!!e.req_in};
@@ -2210,8 +2572,8 @@ function enemiesDraw(){
     var sh=(e.ships&&e.ships.length)?e.ships:[null,null,null],hp="";
     sh.slice(0,3).forEach(function(v){hp+=ENBOAT+"<span>"+(v===null||v===undefined?"—":n(v)+"%")+"</span>"});
     var d=document.createElement("button");d.className="enr";
-    d.innerHTML="<span class='enc'>›</span><span class='enx'><span class='enn'>"+esc(e.name)+" ("+(e.fishing===false?"خامل":"صيد")+")</span><span class='enp'>"+hp+"</span>"+(e.tribe?"<span class='ent'><span class='ens'>"+embHtml(e.tribe_emblem)+"</span><span>"+esc(e.tribe)+"</span></span>":"")+"</span><span class='ena'"+(ok?" style=\"background-image:url('"+e.avatar+"')\"":"")+">"+(ok?"":"?")+"</span>";
-    d.onclick=function(){playerMenu(r,enemiesLoad,"enemies")};
+    d.innerHTML="<span class='enc'>›</span><span class='enx'><span class='enn'>"+esc(e.name)+" ("+(e.fishing===false?"خامل":"صيد")+")"+(e.last_steal&&!e.last_attack?" · سرقة":(e.last_steal?" · هجوم وسرقة":" · هجوم"))+"</span><span class='enp'>"+hp+"</span>"+(e.tribe?"<span class='ent'><span class='ens'>"+embHtml(e.tribe_emblem)+"</span><span>"+esc(e.tribe)+"</span></span>":"")+"</span><span class='ena'"+(ok?" style=\"background-image:url('"+e.avatar+"')\"":"")+">"+(ok?"":"?")+"</span>";
+    d.onclick=function(){enemyInfo(e,r)};
     box.appendChild(d);
   });
 }
@@ -2222,7 +2584,7 @@ function enemiesLoad(){
   box.innerHTML="<div class='rkmsg' style='color:#555'>جارٍ التحميل…</div>";
   window.api("enemies",{}).then(function(res){
     if(!$("enlist"))return;
-    EN.rows=res.rows||[];
+    EN.rows=res.rows||[];EN.srv=res.server_ms;EN.at=Date.now();
     enemiesDraw();
   }).catch(function(e){if($("enlist"))box.innerHTML="<div class='rkmsg' style='color:#555'>"+esc((e&&e.message)||"تعذّر التحميل")+"</div>"});
 }
@@ -2960,6 +3322,7 @@ function rankLoad(){
   if(!box)return;
   var tab=RK.tab;
   if(tab==="tribe"){tribeList(box);return}
+  if(tab==="comp"){conRank(box);return}
   if(tab!=="world"&&tab!=="friends"){box.innerHTML="<div class='rkmsg'>هذا القسم قريبًا…</div>";return}
   if(!window.api){
     box.innerHTML="";
