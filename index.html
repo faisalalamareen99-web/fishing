@@ -721,6 +721,7 @@ button:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
 .nkfold.on{display:block}
 .nukebar{left:30px!important}
 .nukebar.col{display:none!important}
+.stage,.vstage{width:var(--sw,max(100%,calc(100dvh*1438/2576)))}
 </style>
 </head>
 <body>
@@ -1914,7 +1915,8 @@ function weaponDetail(t){
   $("whx").onclick=function(){w.className="wh"};
   $("wbk").onclick=invScreen;
 }
-function setU(){var sc=$("scene");if(sc)sc.style.setProperty("--u",(sc.clientWidth/100)+"px")}
+function setU(){var sc=$("scene");if(sc){sc.style.setProperty("--u",(sc.clientWidth/100)+"px");var sw=Math.max(sc.clientWidth,sc.clientHeight*1438/2576);if(sw>0)sc.style.setProperty("--sw",sw+"px")}}
+(function(){function go(){try{setU()}catch(e){}}window.addEventListener("resize",go);window.addEventListener("orientationchange",go);window.addEventListener("load",function(){go();setTimeout(go,300);setTimeout(go,1200)});if(window.visualViewport)window.visualViewport.addEventListener("resize",go);if(window.ResizeObserver){var ro=new ResizeObserver(go);var tick=setInterval(function(){var e=$("scene");if(e){ro.observe(e);clearInterval(tick);go()}},100)}})();
 function drawProfile(){
   var P=S.profile||{},a=$("av"),pp=$("avp"),nn=$("pname");
   if(!a)return;
