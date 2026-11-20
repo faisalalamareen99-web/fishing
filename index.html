@@ -3092,22 +3092,23 @@ function renderVisit(){
       tbs[q].querySelector(".fs b").style.width=Math.min(100,lt/cp*100)+"%";
       tbs[q].querySelector(".pc").textContent=lt>=cp?"ممتلئة":n(lt)+" / "+n(cp);
     }
-    if(tbs.length&&(++vPollN)%5===0)vPoll();
+    if((++vPollN)%3===0)vPoll();
   }
   tick();clearInterval(visitT);visitT=setInterval(tick,1000);
 }
 function shipLv(t){var i;for(i=0;i<SHIPS.length;i++)if(SHIPS[i].t===t)return Math.floor(i/3)+1;return String(t).indexOf("sub")===0?7:1}
 function atkBlock(){if((S.level||1)<3)return "وسّع سوق السفن لتتمكن من الهجوم";var i;for(i=0;i<3;i++)if(!S.b[i]||!S.b[i].own||(S.b[i].p!=="fishing"&&S.b[i].p!=="ready")||shipLv(S.b[i].type)<3)return "يجب أن تملك ثلاث سفن متقدمة وتكون كلها في الصيد لتتمكن من الهجوم";return ""}
 var vPollN=0,vPolling=false;
+function vSig(v){return (v.ships||[]).map(function(s){return [s.slot,s.type,s.hp,s.state,s.started_ms,s.thief?s.thief.user_id+"|"+s.thief.slot:""].join(":")}).join(",")+"#"+(v.ruin_until_ms||0)+"#"+(v.bg||"")}
 function vPoll(){
   if(vPolling||!V)return;vPolling=true;
   var uid=V.user_id;
   window.api("visit_ocean",{p_user:uid}).then(function(v2){
     vPolling=false;if(!V||V.user_id!==uid)return;
-    var had=(V.ships||[]).map(function(s){return s.thief?s.thief.user_id+"|"+s.thief.slot:""}).join(","),
-        has=(v2.ships||[]).map(function(s){return s.thief?s.thief.user_id+"|"+s.thief.slot:""}).join(",");
-    V.ships=v2.ships;V.off=Number(v2.server_ms)-Date.now();
-    if(had!==has&&$("wh").classList.contains("visit"))renderVisit();
+    var had=vSig(V),has=vSig(v2);
+    V.ships=v2.ships;V.ruin_until_ms=v2.ruin_until_ms;V.off=Number(v2.server_ms)-Date.now();if(v2.bg!==undefined){V.bg=v2.bg;V.bg_until_ms=v2.bg_until_ms}
+    var w=$("wh");
+    if(had!==has&&w.classList.contains("visit")&&!w.querySelector(".msl,.boom"))renderVisit();
   }).catch(function(){vPolling=false});
 }
 function vRefresh(){
