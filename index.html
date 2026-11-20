@@ -1069,7 +1069,7 @@ async function boot(){
   $("aload").style.display="block";$("aform").style.display="none";$("aretry").style.display="none";msg("");
   try{
     if(!window.supabase)throw new Error("nolib");
-    if(!sb)sb=window.supabase.createClient(SB_URL,SB_KEY);
+    if(!sb)sb=window.supabase.createClient(SB_URL,SB_KEY);window.__sb=sb;
     var s=await sb.auth.getSession();
     if(s.data&&s.data.session)await afterLogin(s.data.session.user);
     else showForm();
@@ -2325,7 +2325,7 @@ function nukeSet(rows,off){
 /* live attacks v309 */
 var ATKQ=[],ATKT=null;
 function atkLive(){
-  var c=window.sb;
+  var c=window.__sb;
   if(!c||!CU||atkLive.on)return;
   atkLive.on=true;
   try{
