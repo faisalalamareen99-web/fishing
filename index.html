@@ -1021,7 +1021,7 @@ document.addEventListener("visibilitychange",function(){
   if(document.visibilityState==="hidden"&&CU&&pend){if(tm){clearTimeout(tm);tm=null}push()}
 });
 async function afterLogin(user){
-  CU=user;
+  CU=user;window.__cu=user;
   $("aload").style.display="block";$("aform").style.display="none";msg("");
   var r;
   try{r=await sb.from("saves").select("data").eq("user_id",user.id).maybeSingle()}catch(e){r={error:e}}
@@ -2326,10 +2326,10 @@ function nukeSet(rows,off){
 var ATKQ=[],ATKT=null;
 function atkLive(){
   var c=window.__sb;
-  if(!c||!CU||atkLive.on)return;
+  if(!c||!window.__cu||atkLive.on)return;
   atkLive.on=true;
   try{
-    c.channel("atk-"+CU.id).on("postgres_changes",{event:"INSERT",schema:"public",table:"attacks",filter:"victim_id=eq."+CU.id},function(p){if(p&&p.new)atkIn(p.new)}).subscribe();
+    c.channel("atk-"+window.__cu.id).on("postgres_changes",{event:"INSERT",schema:"public",table:"attacks",filter:"victim_id=eq."+window.__cu.id},function(p){if(p&&p.new)atkIn(p.new)}).subscribe();
   }catch(e){atkLive.on=false}
 }
 function atkIn(r){ATKQ.push(r);clearTimeout(ATKT);ATKT=setTimeout(atkFlush,500)}
