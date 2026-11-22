@@ -696,6 +696,7 @@ button:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
 .box.dark.adm .pzs{max-height:55vh;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:2px}
 .rkbar.nosb{display:none}
 .dock button #rkstar{top:26%!important;right:12%!important;width:24%!important}
+.box.dark .opt.rd{background:linear-gradient(#e0574b,#a02a20);color:#fff}
 </style>
 <style>
 #auth{position:fixed;inset:0;z-index:9999;background:#1a140e;display:flex;align-items:center;justify-content:center;padding:18px;font-family:"Noto Naskh Arabic","Geeza Pro","Segoe UI",Tahoma,serif}
@@ -2530,6 +2531,24 @@ function ntNote(f,u,t){
   NT.lf=f;NT.lu=u;NT.lt=t;
   if(up)ntChime();
 }
+var PF={last:-1,set:{},t:0,star:false,busy:false};
+function pfFriends(cb){
+  if(PF.busy)return;PF.busy=true;
+  window.api("ranking",{p_scope:"friends",p_limit:50}).then(function(r){
+    PF.set={};((r&&r.rows)||[]).forEach(function(x){if(!x.is_me)PF.set[x.user_id]=1});PF.t=Date.now();PF.busy=false;if(cb)cb();
+  }).catch(function(){PF.busy=false});
+}
+function pfPoll(){
+  if(!window.api)return;
+  if(typeof DC!=="undefined"&&DC.open&&DC.tab==="pub"){PF.star=false;if(DC.after>PF.last)PF.last=DC.after;stars();return}
+  if(!PF.t||Date.now()-PF.t>300000){pfFriends(pfPoll);return}
+  window.api("public_get",{p_after:PF.last<0?0:PF.last,p_known:[]}).then(function(r){
+    var l=(r&&r.messages)||[],mx=PF.last<0?0:PF.last,hit=false;
+    l.forEach(function(m){var id=Number(m.id);if(id>mx)mx=id;if(PF.last>=0&&!m.mine&&m.uid&&PF.set[m.uid]&&!(BLK.set&&BLK.set[m.uid]))hit=true});
+    PF.last=mx;
+    if(hit){PF.star=true;stars();try{ntChime()}catch(e){}}
+  }).catch(function(){});
+}
 var CTS={n:0,c:0};
 function ctSeen(){try{return Number(localStorage.getItem("ctseen")||0)}catch(e){return 0}}
 function ctMark(rows){
@@ -2568,7 +2587,9 @@ function stars(){
   var ds=$("dctst");
   if(ds)ds.className="nstar dctst"+(u>0?" on":"");
   var hd=$("chdot");
-  if(hd)hd.className="nstar chdot"+((u>0&&!(typeof DC!=="undefined"&&DC.open))?" on":"");
+  if(hd)hd.className="nstar chdot"+(((u>0||PF.star)&&!(typeof DC!=="undefined"&&DC.open))?" on":"");
+  var dp=$("dctp");
+  if(dp)dp.className="nstar dctst"+(PF.star?" on":"");
 }
 
 var GRP={on:false};
@@ -2599,7 +2620,7 @@ function grpPoll(){
 }
 function ntPoll(){
   if(!window.api||document.hidden)return;
-  grpPoll();CTS.c=(CTS.c||0)+1;if(CTS.c%3===1)ctPoll();window.api("notif_counts",{}).then(function(r){S.freq=Number(r.friend_req||0);S.unread=Number(r.unread||0);S.treq=Number(r.tribe_req||0);ntNote(S.freq,S.unread,S.treq);stars();drawProfile()}).catch(function(){});
+  grpPoll();CTS.c=(CTS.c||0)+1;if(CTS.c%3===1)ctPoll();pfPoll();window.api("notif_counts",{}).then(function(r){S.freq=Number(r.friend_req||0);S.unread=Number(r.unread||0);S.treq=Number(r.tribe_req||0);ntNote(S.freq,S.unread,S.treq);stars();drawProfile()}).catch(function(){});
 }
 function giftStarUpdate(){
   var e=$("giftstar");
@@ -3251,7 +3272,7 @@ function playerMenu(r,reload,from){
   var h2="<h2>"+esc(r.name)+admB(r.user_id)+"</h2>";
   if(r.is_me)h2+="<button class='opt' id='pm1'>تعديل ملفي الشخصي</button>";
   else if(r.is_friend){
-    h2+="<button class='opt' id='pm2'>زيارة الصديق</button><button class='opt' id='pm4'>محادثة</button><button class='opt' id='pm1'>إزالة من الأصدقاء</button>";
+    h2+="<button class='opt' id='pm2'>زيارة الصديق</button><button class='opt' id='pm4'>محادثة</button>";
   }else{
     h2+="<button class='opt' id='pm1'>"+(r.is_friend?"إزالة من الأصدقاء":(r.req_sent?"تم إرسال طلب الصداقة":(r.req_in?"قبول طلب الصداقة":"إضافة صديق")))+"</button>";
     h2+="<button class='opt' id='pm2'>زيارة محيط اللاعب</button>";
@@ -3264,7 +3285,7 @@ function playerMenu(r,reload,from){
     if(r.is_me){profileScreen();return}
     if(!window.api){toast("هذه الميزة في النسخة الأونلاين");return}
     if(r.is_friend){
-      window.api("remove_friend",{p_user:r.user_id}).then(function(){r.is_friend=false;toast("تمت إزالة الصديق");reload()}).catch(srvErr);
+      return;
     }else if(r.req_sent){
       toast("أُرسل طلب الصداقة، بانتظار موافقته");
     }else{
@@ -4550,7 +4571,7 @@ $("rbplus").onclick=function(){toast("شراء الياقوت قريبًا…")}
 var DC={open:false,tab:"pub",peer:null,after:0,t:null,key:0};
 (function(){
   var d=document.createElement("div");d.id="chd";
-  d.innerHTML="<div id='chp'><div class='dci'><div class='dct'><button id='dct1' class='on'>العام</button><button id='dct2'>الأصدقاء<img id='dctst' class='nstar dctst' alt=''></button></div><div id='dcb'></div></div><button id='chh' aria-label='الدردشة'><svg viewBox='0 0 24 24'><path d='M4 4h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H11l-5 4v-4H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z' fill='#fff' stroke='#7a4308' stroke-width='1.2'/><circle cx='8' cy='10.5' r='1.3' fill='#d9770e'/><circle cx='12' cy='10.5' r='1.3' fill='#d9770e'/><circle cx='16' cy='10.5' r='1.3' fill='#d9770e'/></svg><img id='chdot' class='nstar chdot' alt=''></button></div>";
+  d.innerHTML="<div id='chp'><div class='dci'><div class='dct'><button id='dct1' class='on'>العام<img id='dctp' class='nstar dctst' alt=''></button><button id='dct2'>الأصدقاء<img id='dctst' class='nstar dctst' alt=''></button></div><div id='dcb'></div></div><button id='chh' aria-label='الدردشة'><svg viewBox='0 0 24 24'><path d='M4 4h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H11l-5 4v-4H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z' fill='#fff' stroke='#7a4308' stroke-width='1.2'/><circle cx='8' cy='10.5' r='1.3' fill='#d9770e'/><circle cx='12' cy='10.5' r='1.3' fill='#d9770e'/><circle cx='16' cy='10.5' r='1.3' fill='#d9770e'/></svg><img id='chdot' class='nstar chdot' alt=''></button></div>";
   $("scene").appendChild(d);
 })();
 function dcAv(u){return (u&&/^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/.test(u))?u:""}
@@ -4598,7 +4619,7 @@ function userMenu(uid,name,kind){
   };
 }
 function dcView(){
-  dcStop();DC.key++;
+  dcStop();DC.key++;if(DC.tab==="pub"){PF.star=false;stars()}
   $("dct1").className=DC.tab==="pub"?"on":"";$("dct2").className=DC.tab==="fr"?"on":"";
   var b=$("dcb");
   if(!window.api){b.innerHTML="<div class='rkmsg'>الدردشة متاحة في النسخة الأونلاين.</div>";return}
@@ -4629,13 +4650,18 @@ function dcFriends(){
       if(r.unread>0){var c=document.createElement("span");c.className="dcu";c.textContent=n(r.unread);f.appendChild(c)}
       f.onclick=function(){
         $("box").className="box dark mini";
-        $("box").innerHTML="<h2>"+esc(r.name)+"</h2><button class='opt' id='dfc'>محادثة"+(r.unread>0?" ("+n(r.unread)+")":"")+"</button><button class='opt' id='dfv'>زيارة</button><button class='opt' id='dfx'>إلغاء</button>";
+        $("box").innerHTML="<h2>"+esc(r.name)+"</h2><button class='opt' id='dfc'>محادثة"+(r.unread>0?" ("+n(r.unread)+")":"")+"</button><button class='opt' id='dfv'>زيارة</button><button class='opt rd' id='dfr'>إلغاء الصداقة</button><button class='opt' id='dfx'>إلغاء</button>";
         $("modal").className="modal on";
         $("dfx").onclick=closeM;
         $("dfc").onclick=function(){
           closeM();
           if(r.unread>0){S.unread=Math.max(0,(S.unread||0)-r.unread);r.unread=0;stars()}
           DC.peer=r;dcView();
+        };
+        $("dfr").onclick=function(){
+          ask("هل أنت متأكد من إلغاء الصداقة مع "+esc(r.name)+"؟","نعم، إلغاء الصداقة",function(){
+            window.api("remove_friend",{p_user:r.user_id}).then(function(){toast("تم إلغاء الصداقة");if(DC.open&&DC.tab==="fr"&&!DC.peer)dcFriends()}).catch(srvErr);
+          });
         };
         $("dfv").onclick=function(){
           closeM();
@@ -4699,7 +4725,7 @@ $("dct1").onclick=function(){DC.tab="pub";DC.peer=null;dcView()};
 $("dct2").onclick=function(){DC.tab="fr";DC.peer=null;dcView()};
 window.addEventListener("resize",dcPlace);
 setTimeout(dcPlace,300);setTimeout(dcPlace,1500);
-$("chdot").src=STARIMG;$("dctst").src=STARIMG;stars();
+$("chdot").src=STARIMG;$("dctst").src=STARIMG;$("dctp").src=STARIMG;stars();
 
 window.__ready=true;
 </script>
