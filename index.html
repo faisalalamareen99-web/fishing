@@ -3295,7 +3295,7 @@ function admRows(rows){
     if(a==="grant"){
       admModal("<h2>منح "+esc(r.name)+"</h2>"+pzHtml("ag")+"<button class='opt' id='ago'>منح</button><button class='opt' id='amc'>إلغاء</button>",function(){
         pzBind("ag");$("amc").onclick=closeM;
-        $("ago").onclick=function(){var v=pzVal("ag");if(!(v.qty>=1)){toast("اكتب كمية صحيحة");return}closeM();admCall("admin_grant",{p_user:r.user_id,p_kind:v.kind,p_key:v.key,p_qty:v.qty},re,"تم المنح")};
+        $("ago").onclick=function(){var v=pzVal("ag");if(!(v.qty>=1)){toast("اكتب كمية صحيحة");return}if(v.kind==="ruby"&&v.qty>2000000000){toast("الحد الأقصى للياقوت 2,000,000,000");return}closeM();admCall("admin_grant",{p_user:r.user_id,p_kind:v.kind,p_key:v.key,p_qty:v.qty},re,"تم المنح")};
       });
     }else if(a==="mute"||a==="ban"){
       var op=[[1,"ساعة"],[6,"6 ساعات"],[24,"يوم"],[72,"3 أيام"],[168,"أسبوع"],[87600,"دائم"],[0,a==="mute"?"رفع الكتم":"رفع الحظر"]];
