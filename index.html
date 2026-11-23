@@ -1163,6 +1163,11 @@ button:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
 .wh.pop:has(.mk) .row.shp .ic{width:64px;min-width:64px;flex:none}
 .wh.pop:has(.mk) .foot{padding-bottom:calc(var(--u,4px)*4.5)}
 .wh.pop .row .ic:has(img.fi){width:64px;min-width:64px;flex:none}
+
+/* admin: fixed tabs, only content scrolls */
+.wh:has(.adt){overflow:hidden!important}
+.wh:has(.adt) #adb{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.wh:has(.adt) #adb>.stab.gf{position:sticky;top:0;z-index:2;background:#0b1a40}
 </style>
 </head>
 <body>
