@@ -1153,6 +1153,16 @@ button:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
 /* name / level alignment */
 .frame .pc .pname{text-align:right!important;padding-right:9%;box-sizing:border-box}
 .pc .plvl{text-align:left!important;padding-left:3%;box-sizing:border-box}
+
+/* nuke bar smooth scroll v2: transform-only animation, no blur on HUD over animated sea */
+@keyframes nkgo{from{transform:translate3d(-100%,0,0)}to{transform:translate3d(var(--nkw,480px),0,0)}}
+.nukebar .nkt{left:0!important;will-change:transform;backface-visibility:hidden;transform:translate3d(-100%,0,0)}
+.nukebar,.admfab,.frame .hb,.frame .shipbtn,#chh{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+
+/* warehouse: fish icon inside row, footer buttons raised */
+.wh.pop:has(.mk) .row.shp .ic{width:64px;min-width:64px;flex:none}
+.wh.pop:has(.mk) .foot{padding-bottom:calc(var(--u,4px)*4.5)}
+.wh.pop .row .ic:has(img.fi){width:64px;min-width:64px;flex:none}
 </style>
 </head>
 <body>
@@ -2816,7 +2826,7 @@ function nukeSet(rows,off){
   var txt="قام "+r.attacker+" بتفجير "+r.victim+(r.weapon==="msgbomb"?" برسالة تفجير":" بالقنبلة الذرية");
   bar.className="nukebar on";nkApply();
   if(t.getAttribute("data-t")!==txt){
-    t.setAttribute("data-t",txt);t.textContent=txt;
+    t.setAttribute("data-t",txt);t.textContent=txt;t.style.setProperty("--nkw",bar.clientWidth+"px");
     var d=Math.max(10,(bar.clientWidth+t.scrollWidth)/55);
     t.style.animation="none";void t.offsetWidth;t.style.animation="nkgo "+d+"s linear infinite";
   }
@@ -3119,7 +3129,6 @@ function conCardX(c){
   }
   h+="</div>";
   if(live&&c.kind!=="manual")h+="<div class='cxm'>"+(c.scope==="tribe"?"ترتيب قبيلتك":"ترتيبك")+": "+(c.my_score>0?c.my_rank:"—")+" · "+(c.scope==="tribe"?"نقاط قبيلتك":"نقاطك")+": "+n(c.my_score)+"</div>";
-  if(c.status==="ended"&&c.winners&&c.winners.length)h+="<div class='cxm' style='color:#ffd24a'>الفائزون: "+c.winners.map(function(w){return w.rank+". "+esc(w.name)}).join(" · ")+"</div>";
   return h+"</div>";
 }
 function conRank(box){
