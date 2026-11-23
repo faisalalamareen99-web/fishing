@@ -3184,7 +3184,7 @@ function admRows(rows){
       +"<div class='sm'>هجمات: "+r.attacks_made+" له / "+r.attacks_got+" عليه · سرقات: "+r.steals_made+" له / "+r.steals_got+" عليه</div>"
       +"<div class='sm'>سفن: "+(r.ships&&r.ships.length?r.ships.map(function(t){return esc((TYPES[t]&&TYPES[t].name)||t)}).join("، "):"—")+"</div>"
       +(fl.length?"<div style='color:#b53a2e;font-size:.85em'>"+fl.join(" · ")+"</div>":"")
-      +"<div>"+(admCan("grant")?"<button class='ab' data-a='grant' data-i='"+i+"'>منح</button>":"")+(admCan("*")?"<button class='ab' data-a='mute' data-i='"+i+"'>كتم</button>":"")+(admCan("ban")?"<button class='ab' data-a='ban' data-i='"+i+"'>حظر</button>":"")+(admCan("*")?(admOwner()?"<button class='ab' data-a='rres' data-i='"+i+"'>تصفير مورد</button>":"")+"<button class='ab' data-a='name' data-i='"+i+"'>تغيير الاسم</button><button class='ab' data-a='avatar' data-i='"+i+"'>حذف الصورة</button><button class='ab' data-a='tribe' data-i='"+i+"'>تصفير القبيلة</button><button class='ab' data-a='limits' data-i='"+i+"'>رفع الحبس والتدمير</button><button class='ab rd' data-a='del' data-i='"+i+"'>حذف الحساب</button>":"")+"</div></div>";
+      +"<div>"+(admCan("grant")?"<button class='ab' data-a='grant' data-i='"+i+"'>منح</button>":"")+(admCan("*")?"<button class='ab' data-a='mute' data-i='"+i+"'>كتم</button>":"")+(admCan("ban")?"<button class='ab' data-a='ban' data-i='"+i+"'>حظر</button>":"")+(admCan("*")?(admOwner()?"<button class='ab' data-a='rres' data-i='"+i+"'>تصفير مورد</button>"+(r.public_id===S.pid?"<button class='ab' data-a='rbg' data-i='"+i+"'>إصلاح الخلفية</button>":""):"")+"<button class='ab' data-a='name' data-i='"+i+"'>تغيير الاسم</button><button class='ab' data-a='avatar' data-i='"+i+"'>حذف الصورة</button><button class='ab' data-a='tribe' data-i='"+i+"'>تصفير القبيلة</button><button class='ab' data-a='limits' data-i='"+i+"'>رفع الحبس والتدمير</button><button class='ab rd' data-a='del' data-i='"+i+"'>حذف الحساب</button>":"")+"</div></div>";
   }).join("");
   box.onclick=function(e){
     var t=e.target.closest("button[data-a]");if(!t)return;
@@ -3206,6 +3206,7 @@ function admRows(rows){
         $("ago").onclick=function(){var v=$("anm").value.trim();if(v.length<2){toast("الاسم من 2 إلى 16 حرفًا");return}closeM();admCall("admin_set_name",{p_user:r.user_id,p_name:v},re)};
       });
     }else if(a==="avatar"){ask("حذف صورة "+esc(r.name)+"؟","حذف",function(){admCall("admin_clear_avatar",{p_user:r.user_id},re)})}
+    else if(a==="rbg"){ask("إصلاح محيطك مجانًا؟","إصلاح",function(){window.api("admin_repair_own_ocean",{}).then(function(st){applyServer(st);S.ruinUntil=0;save();applyBgCss();render();toast("تم إصلاح الخلفية");re()}).catch(srvErr)})}
     else if(a==="rres"){
       var RO=[["coins","الذهب"],["ruby","الياقوت"],["crew","الطواقم"],["weapon","الأسلحة"],["repairer","المصلحون"],["bg","الخلفيات"],["fish","السمك في المستودع"]];
       admModal("<h2>تصفير مورد "+esc(r.name)+"</h2><select class='ain' id='arw'>"+RO.map(function(o){return "<option value='"+o[0]+"'>"+o[1]+"</option>"}).join("")+"</select><button class='opt' id='ago'>متابعة</button><button class='opt' id='amc'>إلغاء</button>",function(){
