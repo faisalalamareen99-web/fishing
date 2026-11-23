@@ -3034,6 +3034,7 @@ function admB(u){return ""}
 var ADM={is:false,perms:[]},AD={tab:"player",q:"",auto:false},CN={off:0};
 var CKIND={caught:"أكثر صيدًا",sold:"أكثر سمك مباع",attack:"أعلى ضرر هجمات",steal:"أكثر سمك مسروق",donate:"أكثر تبرعًا للقبيلة",manual:"مسابقة يدوية",fish:"أكثر صيدًا لسمكة معيّنة"};
 var PKINDS=[["coins","ذهب"],["ruby","ياقوت"],["crew","طاقم"],["weapon","سلاح"],["repairer","مصلح"]];
+function admOwner(){return S.pid==="YW3HWP2K"}
 function admCan(p){return ADM.perms.indexOf("*")>=0||ADM.perms.indexOf(p)>=0}
 function p2(v){return v<10?"0"+v:""+v}
 function fmtT(ms){var d=new Date(ms);return d.getFullYear()+"/"+p2(d.getMonth()+1)+"/"+p2(d.getDate())+" "+p2(d.getHours())+":"+p2(d.getMinutes())}
@@ -3139,10 +3140,10 @@ function conHtml(){
   if(!GF.C.rows.length)return hh+"<div class='rkmsg' style='color:#555'>لا توجد مسابقات الآن</div>";
   return hh+GF.C.rows.map(function(c){return conCardX(c)}).join("");
 }
-var ATABS=[["player","لاعب","find"],["contests","مسابقات","*"],["reports","بلاغات","reports"],["ann","إعلان","*"]];
+var ATABS=[["player","لاعب","find"],["contests","مسابقات","*"],["reports","بلاغات","reports"],["grants","المنح","*"],["ann","إعلان","*"]];
 function adminScreen(tab){
   if(tab)AD.tab=tab;
-  var okT=ATABS.filter(function(t){return admCan(t[2])});
+  var okT=ATABS.filter(function(t){return admCan(t[2])&&(t[0]!=="grants"||admOwner())});
   if(!okT.length){toast("ليست لديك صلاحية");return}
   if(!okT.some(function(t){return t[0]===AD.tab}))AD.tab=okT[0][0];
   var w=$("wh"),hh="<header><span>لوحة الإدارة</span><button id='whx' aria-label='إغلاق'>✕</button></header>";
@@ -3153,7 +3154,7 @@ function adminScreen(tab){
   $("lbk").onclick=function(){w.className="wh"};
   var ts=w.querySelectorAll(".stab button"),k;
   for(k=0;k<ts.length;k++)ts[k].onclick=function(){adminScreen(this.getAttribute("data-k"))};
-  var f=AD.tab==="player"?admPlayer:AD.tab==="contests"?admContests:AD.tab==="reports"?admReports:AD.tab==="chat"?admChat:AD.tab==="ann"?admAnn:admRew;
+  var f=AD.tab==="player"?admPlayer:AD.tab==="contests"?admContests:AD.tab==="reports"?admReports:AD.tab==="grants"?admGrants:AD.tab==="chat"?admChat:AD.tab==="ann"?admAnn:admRew;
   f();
 }
 function admLoading(){$("adb").innerHTML="<div class='rkmsg' style='color:#555'>جارٍ التحميل…</div>"}
@@ -3183,7 +3184,7 @@ function admRows(rows){
       +"<div class='sm'>هجمات: "+r.attacks_made+" له / "+r.attacks_got+" عليه · سرقات: "+r.steals_made+" له / "+r.steals_got+" عليه</div>"
       +"<div class='sm'>سفن: "+(r.ships&&r.ships.length?r.ships.map(function(t){return esc((TYPES[t]&&TYPES[t].name)||t)}).join("، "):"—")+"</div>"
       +(fl.length?"<div style='color:#b53a2e;font-size:.85em'>"+fl.join(" · ")+"</div>":"")
-      +"<div>"+(admCan("grant")?"<button class='ab' data-a='grant' data-i='"+i+"'>منح</button>":"")+(admCan("*")?"<button class='ab' data-a='mute' data-i='"+i+"'>كتم</button>":"")+(admCan("ban")?"<button class='ab' data-a='ban' data-i='"+i+"'>حظر</button>":"")+(admCan("*")?"<button class='ab' data-a='name' data-i='"+i+"'>تغيير الاسم</button><button class='ab' data-a='avatar' data-i='"+i+"'>حذف الصورة</button><button class='ab' data-a='tribe' data-i='"+i+"'>تصفير القبيلة</button><button class='ab' data-a='limits' data-i='"+i+"'>رفع الحبس والتدمير</button><button class='ab rd' data-a='del' data-i='"+i+"'>حذف الحساب</button>":"")+"</div></div>";
+      +"<div>"+(admCan("grant")?"<button class='ab' data-a='grant' data-i='"+i+"'>منح</button>":"")+(admCan("*")?"<button class='ab' data-a='mute' data-i='"+i+"'>كتم</button>":"")+(admCan("ban")?"<button class='ab' data-a='ban' data-i='"+i+"'>حظر</button>":"")+(admCan("*")?(admOwner()?"<button class='ab' data-a='rres' data-i='"+i+"'>تصفير مورد</button>":"")+"<button class='ab' data-a='name' data-i='"+i+"'>تغيير الاسم</button><button class='ab' data-a='avatar' data-i='"+i+"'>حذف الصورة</button><button class='ab' data-a='tribe' data-i='"+i+"'>تصفير القبيلة</button><button class='ab' data-a='limits' data-i='"+i+"'>رفع الحبس والتدمير</button><button class='ab rd' data-a='del' data-i='"+i+"'>حذف الحساب</button>":"")+"</div></div>";
   }).join("");
   box.onclick=function(e){
     var t=e.target.closest("button[data-a]");if(!t)return;
@@ -3205,6 +3206,13 @@ function admRows(rows){
         $("ago").onclick=function(){var v=$("anm").value.trim();if(v.length<2){toast("الاسم من 2 إلى 16 حرفًا");return}closeM();admCall("admin_set_name",{p_user:r.user_id,p_name:v},re)};
       });
     }else if(a==="avatar"){ask("حذف صورة "+esc(r.name)+"؟","حذف",function(){admCall("admin_clear_avatar",{p_user:r.user_id},re)})}
+    else if(a==="rres"){
+      var RO=[["coins","الذهب"],["ruby","الياقوت"],["crew","الطواقم"],["weapon","الأسلحة"],["repairer","المصلحون"],["bg","الخلفيات"],["fish","السمك في المستودع"]];
+      admModal("<h2>تصفير مورد "+esc(r.name)+"</h2><select class='ain' id='arw'>"+RO.map(function(o){return "<option value='"+o[0]+"'>"+o[1]+"</option>"}).join("")+"</select><button class='opt' id='ago'>متابعة</button><button class='opt' id='amc'>إلغاء</button>",function(){
+        $("amc").onclick=closeM;
+        $("ago").onclick=function(){var w=$("arw").value,nm="";RO.forEach(function(o){if(o[0]===w)nm=o[1]});ask("تصفير "+nm+" عند "+esc(r.name)+" نهائيًا؟","تصفير",function(){admCall("admin_reset_resource",{p_user:r.user_id,p_what:w},re,"تم التصفير")})};
+      });
+    }
     else if(a==="tribe"){ask("تصفير بيان وشعار قبيلة "+esc(r.name)+"؟","تصفير",function(){admCall("admin_reset_tribe_text",{p_user:r.user_id},re)})}
     else if(a==="limits"){ask("رفع حبس السرقة وتدمير المحيط عن "+esc(r.name)+"؟","رفع",function(){admCall("admin_clear_limits",{p_user:r.user_id},re)})}
     else if(a==="del"){ask("حذف حساب "+esc(r.name)+" نهائيًا؟ لا يمكن التراجع.","حذف نهائي",function(){admCall("admin_delete_user",{p_user:r.user_id},re,"حُذف الحساب")})}
@@ -3323,6 +3331,16 @@ function admReports(){
       if(t.getAttribute("data-a")==="open"){AD.q=x.target;AD.auto=true;adminScreen("player")}
       else admCall("admin_delete_report",{p_id:x.id},admReports);
     };
+  }).catch(srvErr);
+}
+function admGrants(){
+  admLoading();
+  window.api("admin_grants_report",{}).then(function(r){
+    var box=$("adb");if(!box)return;
+    box.innerHTML="<div class='sec'>سجل المنح</div>"+(r.rows.length?r.rows.map(function(x){
+      var what=x.kind==="coins"?n(x.qty)+" ذهب":x.kind==="ruby"?n(x.qty)+" ياقوتة":lkName({kind:x.kind,key:x.key,qty:x.qty});
+      return "<div class='ac'><b>"+esc(what)+"</b> <span class='sm'>"+fmtT(x.created_ms)+"</span><div class='sm'>المشرف: "+esc(x.admin)+"</div><div class='sm'>اللاعب: "+esc(x.player)+"</div></div>";
+    }).join(""):"<div class='rkmsg' style='color:#555'>لا منح مسجّلة</div>");
   }).catch(srvErr);
 }
 function admChat(){
