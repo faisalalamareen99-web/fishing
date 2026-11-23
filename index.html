@@ -1168,6 +1168,11 @@ button:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
 .wh:has(.adt){overflow:hidden!important}
 .wh:has(.adt) #adb{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 .wh:has(.adt) #adb>.stab.gf{position:sticky;top:0;z-index:2;background:#0b1a40}
+
+/* ranking: header and tabs fixed, only the list scrolls */
+.wh.fb:has(#rklist){overflow:hidden!important}
+.wh.fb:has(#rklist)>header,.wh.fb:has(#rklist)>.rkbar,.wh.fb:has(#rklist)>.stab{flex:none}
+.wh.fb:has(#rklist) #rklist{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 </style>
 </head>
 <body>
@@ -3160,7 +3165,7 @@ function adminScreen(tab){
   var okT=ATABS.filter(function(t){return admCan(t[2])&&(t[0]!=="grants"||admOwner())});
   if(!okT.length){toast("ليست لديك صلاحية");return}
   if(!okT.some(function(t){return t[0]===AD.tab}))AD.tab=okT[0][0];
-  var w=$("wh"),hh="<header><span>لوحة الإدارة</span><button id='whx' aria-label='إغلاق'>✕</button></header>";
+  var w=$("wh"),hh="<header class='rkh'><span>لوحة الإدارة</span><span class='hb'><button id='whx' aria-label='إغلاق'>✕</button></span></header>";
   hh+="<div class='stab gf adt'>"+okT.map(function(t){return "<button data-k='"+t[0]+"'"+(t[0]===AD.tab?" class='on'":"")+">"+t[1]+"</button>"}).join("")+"</div><div id='adb'></div>";
   hh+="<button class='big' id='lbk' style='margin-top:10px'>رجوع</button>";
   w.innerHTML=hh;w.className="wh on";
@@ -4477,7 +4482,8 @@ function rankScreen(tab){
   NT.seenF=nf;NT.seenU=nu;
   if(RK.tab==="friends"){NT.tabF=nf;NT.tabU=nu}
   var h="<header class='rkh'><span>"+(RK.tab==="tribe"?"ترتيب القبائل":"الترتيب")+"</span><span class='hb'><button id='whx' aria-label='إغلاق'>✕</button></span></header>";
-  h+="<div class='rkbar"+(isList?"":" nosb")+"'>"+((RK.open&&isList)?"<div class='rksb'><input id='rkq' class='rkin' maxlength='16' placeholder='ابحث في كل اللاعبين بالاسم أو المعرّف'><button id='rkgo'>بحث</button></div>":"")+"<button id='rks' aria-label='بحث'"+(isList?"":" style='display:none'")+">🔍</button></div>";
+  RK.q="";RK.open=false;
+  h+="<div class='rkbar nosb'><button id='rks' aria-hidden='true' tabindex='-1' style='display:none'></button></div>";
   h+="<div class='stab s5'>"+(RK.tab==="tribe"?[["my","قبيلتي"]]:RKTABS).map(function(t){return "<button data-k='"+t[0]+"'"+(t[0]===RK.tab||t[0]==="my"?" class='on'":"")+">"+t[1]+(t[0]==="friends"?"<img id='tabstar' class='nstar tabstar"+(showTab?" on":"")+"' src='"+STARIMG+"' alt=''>":"")+"</button>"}).join("")+"</div>";
   h+="<div id='rklist' class='rklist'></div>";
   w.innerHTML=h;w.className="wh on";
