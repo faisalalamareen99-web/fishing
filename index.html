@@ -805,7 +805,7 @@ button:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
 .nkfold.on{display:block}
 .nukebar{left:30px!important}
 .nukebar.col{display:none!important}
-.stage,.vstage{width:var(--sw,max(100%,calc(100dvh*1438/2576)))}
+.stage,.vstage{width:var(--sw,max(100%,calc(100dvh*1438/2576)))} .stage,.vstage{height:var(--sh,auto)}
 .wh.pop{background:rgba(5,12,20,.62);align-items:center;justify-content:center;padding:0 5%}
 .wh.pop .popc{display:flex;flex-direction:column;width:100%;max-width:420px;height:82%;background:var(--panel);border:3px solid var(--edge);border-radius:16px;overflow:hidden;box-shadow:0 10px 40px #000a;animation:popin .18s ease-out}
 .wh.pop .popc .enm{flex:1;min-height:0;overflow:auto}
@@ -2794,7 +2794,7 @@ function weaponDetail(t){
   $("whx").onclick=function(){w.className="wh"};
   $("wbk").onclick=invScreen;
 }
-function setU(){var sc=$("scene");if(sc){sc.style.setProperty("--u",(sc.clientWidth/100)+"px");var sw=Math.max(sc.clientWidth,sc.clientHeight*1438/2576);if(sw>0)sc.style.setProperty("--sw",sw+"px")}}
+function setU(){var sc=$("scene");if(sc){sc.style.setProperty("--u",(sc.clientWidth/100)+"px");var cw=sc.clientWidth,ch=sc.clientHeight,sw=Math.max(cw,ch*1438/2576);if(cw>0&&ch/cw>2576/1438){sw=Math.max(cw,ch/(2576/1438*1.2));sc.style.setProperty("--sh",ch+"px")}else sc.style.removeProperty("--sh");if(sw>0)sc.style.setProperty("--sw",sw+"px")}}
 (function(){function go(){try{setU()}catch(e){}}window.addEventListener("resize",go);window.addEventListener("orientationchange",go);window.addEventListener("load",function(){go();setTimeout(go,300);setTimeout(go,1200)});if(window.visualViewport)window.visualViewport.addEventListener("resize",go);if(window.ResizeObserver){var ro=new ResizeObserver(go);var tick=setInterval(function(){var e=$("scene");if(e){ro.observe(e);clearInterval(tick);go()}},100)}})();
 function drawProfile(){
   var P=S.profile||{},a=$("av"),pp=$("avp"),nn=$("pname");
