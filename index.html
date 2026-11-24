@@ -3879,12 +3879,19 @@ function visBgCss(v,ruin){var k=v.bg;if(k&&v.bg_until_ms&&Number(v.bg_until_ms)<
   if(ruin)return ruinBg();
   if(k&&typeof BGS!=="undefined"&&BGS[k])return "url('"+bgImg(k)+"') "+(BGS[k].pos||"center")+" / "+(BGS[k].size||"100% 100%")+" no-repeat #0b1a14";
   return "url('"+defBgImg()+"') center/100% 100% no-repeat #0b1a14"}
+var VKEEP=null;
 function visVid(v,ruin){
   var st=$("vstage");if(!st)return;
   var k=v.bg;if(k&&v.bg_until_ms&&Number(v.bg_until_ms)<=Date.now()+v.off)k=null;
   if(!ruin&&k&&typeof BGS!=="undefined"&&BGS[k])return;
-  var u=bgvUrl(ruin?"r":"n");if(!u)return;
-  var e=document.createElement("video");e.className="vbgv";e.muted=true;e.defaultMuted=true;e.loop=true;e.autoplay=true;e.controls=false;e.tabIndex=-1;
+  var kk=ruin?"r":"n";st.setAttribute("data-u",String(v.user_id||""));
+  if(VKEEP&&VKEEP.k===kk&&VKEEP.u===String(v.user_id||"")){
+    st.insertBefore(VKEEP.c,st.firstChild);st.insertBefore(VKEEP.v,st.firstChild);
+    if(!ruin&&VKEEP.tod)st.setAttribute("data-tod",VKEEP.tod);VKEEP=null;return;
+  }
+  VKEEP=null;
+  var u=bgvUrl(kk);if(!u)return;
+  var e=document.createElement("video");e.setAttribute("data-k",kk);e.className="vbgv";e.muted=true;e.defaultMuted=true;e.loop=true;e.autoplay=true;e.controls=false;e.tabIndex=-1;
   e.setAttribute("playsinline","");e.setAttribute("webkit-playsinline","");e.setAttribute("muted","");e.setAttribute("disablepictureinpicture","");e.src=u;
   var cv=document.createElement("canvas");cv.className="vbgc";st.insertBefore(cv,st.firstChild);st.insertBefore(e,st.firstChild);
   if(!ruin){var hr=srvHour();st.setAttribute("data-tod",(hr>=7&&hr<18)?"d":((hr>=18&&hr<20)?"u":"n"))}
@@ -3903,6 +3910,7 @@ function renderVisit(){
     }
   });
   hh+="</div>";
+  VKEEP=null;try{var ov0=$("vstage");if(ov0&&w.contains(ov0)){var oc0=ov0.querySelector(".vbgc"),ovv0=ov0.querySelector(".vbgv");if(oc0&&ovv0)VKEEP={c:oc0,v:ovv0,k:ovv0.getAttribute("data-k"),u:ov0.getAttribute("data-u"),tod:ov0.getAttribute("data-tod")}}}catch(x){}
   w.innerHTML=hh;w.className="wh ocean visit"+(ruin?" ruin":"")+" on";
   $("vstage").style.cssText=$("stage").style.cssText;$("vstage").style.background=visBgCss(v,ruin);$("vstage").classList.toggle("rfx",!!ruin);ruinFx($("vstage"),!!ruin);
   visSkin();signPut($("vstage"),V.sign);try{shVisFx()}catch(x){}try{visVid(v,!!ruin)}catch(x){}
