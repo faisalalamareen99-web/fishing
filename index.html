@@ -3998,7 +3998,7 @@ function visSkin(){
   av.style.pointerEvents="auto";av.style.cursor="pointer";av.onclick=vFriendMenu;
   var vn=nm.parentNode;if(vn){vn.style.pointerEvents="auto";vn.style.cursor="pointer";vn.onclick=vFriendMenu}
   av.style.backgroundImage=V.avatar?"url('"+V.avatar+"')":"";
-  var vf=$("vfr");if(!vf){vf=document.createElement("div");vf.id="vfr";vf.className="vfr";fr.appendChild(vf)}hudFrame(av,av,vf,V.frame,V.avatar);
+  var vf=$("vfr");if(!vf){vf=document.createElement("div");vf.id="vfr";vf.className="vfr";fr.appendChild(vf)}hudFrame(av,av,vf,V.frame,V.avatar,1);
   sc.classList.add("vis");
   if(!window.__vso&&window.MutationObserver){window.__vso=1;new MutationObserver(function(){sc.classList.toggle("vis",$("wh").classList.contains("visit"))}).observe($("wh"),{attributes:true,attributeFilter:["class"]})}
 }
