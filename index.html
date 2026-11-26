@@ -2039,9 +2039,11 @@ function repForShip(i){
     var k=this.getAttribute("data-r"),R=REPAIRERS[k],s=S.b[i],mx=shipMax(i);
     if(!(S.rep[k]>0))return;
     if(s.hp>=mx){toast("صحة هذه السفينة كاملة");return}
-    window.api("use_repairer",{p_rep:k,p_slot:i}).then(function(st){applyServer(st);save();els[i].wk=undefined;render();toast("أضاف "+R.name+" "+n(Number(st.gain))+" نقطة صحة");details(i);try{syncNow()}catch(e){}}).catch(srvErr);
+    if(RPBUSY)return;RPBUSY=true;
+    window.api("use_repairer",{p_rep:k,p_slot:i}).then(function(st){RPBUSY=false;applyServer(st);save();els[i].wk=undefined;render();toast("أضاف "+R.name+" "+n(Number(st.gain))+" نقطة صحة");details(i);try{syncNow()}catch(e){}}).catch(function(e){RPBUSY=false;srvErr(e)});
   };
 }
+var RPBUSY=false;
 var WREM={},VREM={},hlBusy=false;
 function healFetch(uid){
   if(!window.api||hlBusy)return;hlBusy=true;
@@ -2367,7 +2369,8 @@ function repPick(t){
   for(j=0;j<rs.length;j++)rs[j].onclick=function(){
     var k=+this.getAttribute("data-s"),s2=S.b[k],mx2=shipMax(k);
     if(s2.hp>=mx2){toast("صحة هذه السفينة كاملة");return}
-    window.api("use_repairer",{p_rep:t,p_slot:k}).then(function(st){applyServer(st);save();render();toast("أضاف "+R.name+" "+n(Number(st.gain))+" نقطة صحة");repDetail(t)}).catch(srvErr);
+    if(RPBUSY)return;RPBUSY=true;
+    window.api("use_repairer",{p_rep:t,p_slot:k}).then(function(st){RPBUSY=false;applyServer(st);save();render();toast("أضاف "+R.name+" "+n(Number(st.gain))+" نقطة صحة");repDetail(t)}).catch(function(e){RPBUSY=false;srvErr(e)});
   };
 }
 var JP_BG="";var AN_BG="";
