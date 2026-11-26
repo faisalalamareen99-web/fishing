@@ -639,7 +639,7 @@ button:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
 .rqrow .rqn{flex:1;color:#fff;font-weight:700;font-size:.95em}.rqrow .rqn small{display:block;color:#bbb;font-weight:400;font-size:.8em}
 .rqrow .ebt{padding:6px 10px}
 .rk.tpick{cursor:pointer}
-.tbd2 .lk.vb{color:#3aa0e0;text-decoration:underline}
+.tbd2 .lk.tvb{color:#3aa0e0;text-decoration:underline}
 .tdi.fsh{background:linear-gradient(#1f6ea8,#0b2e4d);font-size:2em}
 .tdx{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
 .tdt{color:#c9a15a;font-size:1.3em}
@@ -659,7 +659,7 @@ button:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
 .tbd2 .ln2{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:1px 0}
 .tbd2 .lb{color:#e8c06a}
 .tbd2 .vo{color:#ff9a1e}
-.tbd2 .vb{color:#3aa0e0}
+.tbd2 .tvb{color:#3aa0e0}
 .tbd2 .lk{background:none;border:0;padding:0;font:inherit;color:#3aa0e0;cursor:pointer}
 .tbd2 .emb{width:74px;height:74px;border:3px solid #777;border-radius:6px;background:#1a1a1a;display:block;margin:2px 0}
 .tbd2 .emb svg{width:100%;height:100%;display:block}
@@ -4529,7 +4529,7 @@ function tribeView(id){
       "<div class='ln2'><span class='lb'>المستوى: <span class='vo'>"+n(lvl)+"</span></span><span class='lb'>الترتيب: <span class='vo'>"+n(t.rank||1)+"</span></span><span class='lb'>الأعضاء: <span class='vo'>"+n(t.members)+"/"+n(cap)+"</span></span></div>"+
       "<div class='ln2'><span class='lb'>التبرع: <span class='vo' dir='ltr'>"+n(don)+"/"+n(goal)+"</span></span></div>"+
       "<div class='dbar'><i style='width:"+pc+"%'></i></div>"+
-      "<div class='ln2'><span class='lb'>شيخ القبيلة:</span><span class='vb'>"+esc(t.leader_name||"")+"</span></div>"+
+      "<div class='ln2'><span class='lb'>شيخ القبيلة:</span><span class='tvb'>"+esc(t.leader_name||"")+"</span></div>"+
       "<div class='ln2'><span class='lb'>تصريح القبيلة:</span></div>"+
       "<div class='dsc'>"+esc(t.description||"")+"</div>"+
       "<div class='tborn'></div></div><div style='padding:0 12px'>"+act+"<button class='big pb' id='tvbk' style='margin-top:8px'>رجوع</button></div>";
@@ -4570,11 +4570,11 @@ function tribeScreen(){
       "<div class='ln2'><span class='lb'>الإسم:</span><span class='lb'>"+esc(t.name)+"</span>"+(t.role==="leader"?"<button class='lk' id='tbrq'>طلبات (0)</button>":"")+"</div>"+
       "<div class='ln2'><span class='lb'>الرمز:</span><button class='lk' id='tbed'>تعديل</button></div>"+
       "<div class='emb'>"+embHtml(t.emblem)+"</div>"+
-      "<div class='ln2'><span class='lb'>المستوى: <span class='vo'>"+n(lvl)+"</span></span><span class='lb'>الترتيب: <button class='lk vb' id='tbrk'>"+n(t.rank||1)+"</button></span><span class='lb'>الأعضاء: <span class='vo'>"+n(t.members)+"/"+n(cap)+"</span></span></div>"+
+      "<div class='ln2'><span class='lb'>المستوى: <span class='vo'>"+n(lvl)+"</span></span><span class='lb'>الترتيب: <button class='lk tvb' id='tbrk'>"+n(t.rank||1)+"</button></span><span class='lb'>الأعضاء: <span class='vo'>"+n(t.members)+"/"+n(cap)+"</span></span></div>"+
       "<div class='ln2'><span class='lb'>التبرع: <span class='vo' dir='ltr'>"+n(don)+"/"+n(goal)+"</span></span></div>"+
       "<div class='ln2'><button class='lk' id='tbdn'>تبرع</button></div>"+
       "<div class='dbar'><i style='width:"+pc+"%'></i></div>"+
-      "<div class='ln2'><span class='lb'>شيخ القبيلة:</span><span class='vb'>"+esc((t.role==="leader"&&S.profile&&S.profile.name)||t.leader_name||"")+"</span></div>"+
+      "<div class='ln2'><span class='lb'>شيخ القبيلة:</span><span class='tvb'>"+esc((t.role==="leader"&&S.profile&&S.profile.name)||t.leader_name||"")+"</span></div>"+
       "<div class='ln2'><span class='lb'>تصريح القبيلة:</span>"+(t.role==="leader"?"<button class='lk' id='tbsd'>تغيير</button>":"")+"</div>"+
       "<div class='dsc'>"+esc(t.description||"")+"</div>"+
       "<div class='tborn'></div><div class='tborn'></div>"+
@@ -4661,11 +4661,20 @@ function tbBind(w){var bs=w.querySelectorAll(".tbtabs [data-tab]"),i;for(i=0;i<b
 function tribeMemberMenu(r,meRole){
   var b=$("box");b.className="box dark";
   var h="<h2>"+esc(r.name)+(r.role==="leader"?" 👑":"")+"</h2>";
-  if(meRole==="leader"&&!r.is_me)h+="<button class='opt' id='tmm1'>التنازل بالقيادة</button>";
+  if(meRole==="leader"&&!r.is_me)h+="<button class='opt' id='tmm1'>التنازل بالقيادة</button><button class='opt del' id='tmk'>طرد من القبيلة</button>";
   h+="<button class='opt' id='tmm2'>"+(r.is_me?"ملفي الشخصي":"عرض اللاعب")+"</button><button class='opt' id='tmm0'>إلغاء</button>";
   b.innerHTML=h;$("modal").className="modal on";
   $("tmm0").onclick=closeM;
   $("tmm2").onclick=function(){closeM();if(r.is_me){profileScreen();return}playerMenu({user_id:r.user_id,name:r.name,is_me:false},function(){tribeMembers()})};
+  if($("tmk"))$("tmk").onclick=function(){
+    b.innerHTML="<h2>طرد من القبيلة</h2><p>هل تريد طرد <b>"+esc(r.name)+"</b> من القبيلة؟ سيخرج منها فورًا.</p><button class='opt del' id='tmk1'>تأكيد الطرد</button><button class='opt' id='tmk0'>إلغاء</button>";
+    $("tmk0").onclick=closeM;
+    $("tmk1").onclick=function(){
+      if(!window.api){toast("هذه الميزة في النسخة الأونلاين");return}
+      this.disabled=true;
+      window.api("tribe_kick",{p_user:r.user_id}).then(function(){closeM();toast("تم طرد "+r.name+" من القبيلة");tribeMembers()}).catch(function(e){var o=$("tmk1");if(o)o.disabled=false;srvErr(e)});
+    };
+  };
   if($("tmm1"))$("tmm1").onclick=function(){
     b.innerHTML="<h2>التنازل بالقيادة</h2><p>هل تريد التنازل عن قيادة القبيلة لـ <b>"+esc(r.name)+"</b>؟ ستصبح عضوًا عاديًا مثل باقي الأعضاء.</p><button class='opt del' id='tmc1'>تنازل بالقيادة</button><button class='opt' id='tmc0'>إلغاء</button>";
     $("tmc0").onclick=closeM;
