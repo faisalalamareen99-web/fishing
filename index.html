@@ -980,6 +980,12 @@ html body .scene #wback:active{transform:scale(.94);filter:none}
 .pfid b{direction:ltr;letter-spacing:.12em;color:#ffe6a0}
 .pfid button{background:#1b4668;border:2px solid #c9922f;color:#ffd166;border-radius:8px;padding:2px 12px;font-weight:700;cursor:pointer}
 .pflo{display:block;width:100%;aspect-ratio:1036/222;max-height:70px;background:none center/100% 100% no-repeat;border:0;padding:0;cursor:pointer;font-size:0;color:transparent}
+.wh.pop:has(.pfp.set) .popc::before{content:"الإعدادات"}
+.pfp.set{min-height:0;gap:18px}.pfp.set .pfid{margin-top:6px}
+.sndb{flex:none;width:56px;height:56px;border-radius:50%;border:2px solid #c9922f;background:#1b4668;display:flex;align-items:center;justify-content:center;padding:0;cursor:pointer}
+.sndb:active{filter:brightness(1.2)}
+.pfbtn{display:block;width:100%;height:54px;font-family:inherit;font-size:clamp(18px,5.4vw,22px);font-weight:900;color:#ffe6a0;text-shadow:0 2px 3px #000a;background:linear-gradient(#2a6f9f,#123b5c);border:3px solid var(--cg,#c9922f);border-radius:14px;box-shadow:inset 0 2px 0 #ffffff33,0 4px 8px #0008;cursor:pointer}
+.pfbtn:active{filter:brightness(.85)}
 .pflo:active{filter:brightness(.85)}
 .frame .plvl{pointer-events:auto;cursor:pointer;z-index:3}
 
@@ -1390,6 +1396,7 @@ html body .scene #wback:active{transform:scale(.94);filter:none}
     <div class="gold" id="goldbox"><span class="gv" id="coins">0</span></div>
     <div class="ruby rubybox" id="rubybox"><span class="gv" id="ruby">0</span><button id="rubyplus" type="button" aria-label="شراء ياقوت"></button><img class="rubyico" id="rubyico" alt="ياقوت أحمر" src="data:image/webp;base64,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"><button class="rbplus" id="rbplus" aria-label="شراء ياقوت"></button></div>
     <div class="sbrow">
+      <div class="hbw fshw"><button class="hb" id="setbtn" aria-label="الإعدادات">⚙️</button></div>
       <div class="hbw fshw"><button class="hb fishbtn" aria-label="الأسماك المستكشفة">🐟</button><span class="ftn"><span id="ft">0</span></span></div>
       <div class="sh"><button class="shipbtn" aria-label="السفينة 1"><i class="sic" data-k=""></i></button><i class="orb off" id="o0"></i></div>
       <div class="sh"><button class="shipbtn" aria-label="السفينة 2"><i class="sic" data-k=""></i></button><i class="orb off" id="o1"></i></div>
@@ -1441,6 +1448,13 @@ html body .scene #wback:active{transform:scale(.94);filter:none}
 <input id="apw" type="password" placeholder="كلمة السر (6 أحرف على الأقل)" autocomplete="current-password">
 <button id="alog">تسجيل الدخول</button>
 <button id="asig" class="alt">إنشاء حساب جديد</button>
+<button id="afor" type="button" style="background:none;color:#7a4a00;text-decoration:underline;font-weight:700;font-size:.95em;margin-top:6px">نسيت كلمة السر؟</button>
+</div>
+<div id="arec" style="display:none">
+<p class="sub" style="margin:6px 0">اكتب كلمة السر الجديدة</p>
+<input id="anp" type="password" placeholder="كلمة السر الجديدة (6 أحرف على الأقل)" autocomplete="new-password">
+<input id="anp2" type="password" placeholder="أعد كتابة كلمة السر" autocomplete="new-password">
+<button id="anpb">حفظ كلمة السر</button>
 </div>
 <div id="aload">جارٍ التحميل…</div>
 <div class="msg" id="amsg"></div>
@@ -1454,6 +1468,7 @@ html body .scene #wback:active{transform:scale(.94);filter:none}
 var SB_URL="https://kpqmnlgzmogbfghopyov.supabase.co";
 var SB_KEY="sb_publishable_9qU7LNw04VJtBy0drUMizQ_1qw17jdi";
 var sb=null,CU=null,pend=false,busy=false,tm=null,started=false;
+var REC=/type=recovery/.test(location.hash||"");var RECERR=/error_code=otp_expired|error=access_denied/.test(location.hash||"");
 function $(i){return document.getElementById(i)}
 var PGV=0,PGC=30,PGT=null;
 function PGset(v){PGV=Math.max(PGV,Math.min(100,v));var f=$("pfill"),t=$("ppct");if(f)f.style.width=PGV+"%";if(t)t.textContent=Math.floor(PGV)+"%"}
@@ -1471,11 +1486,13 @@ function tr(e){
   if(/Email not confirmed/i.test(m))return "لم يُؤكَّد البريد بعد. افتح رسالة التأكيد في بريدك";
   if(/valid email|invalid format|is invalid/i.test(m))return "البريد الإلكتروني غير صحيح";
   if(/Could not find the function|schema cache/i.test(m))return "الخادم غير مجهّز بعد. شغّل ملف SQL في Supabase ثم أعد المحاولة";
-  if(/rate limit|too many/i.test(m))return "محاولات كثيرة. انتظر قليلًا ثم حاول";
+  if(/same password|different from the old/i.test(m))return "اختر كلمة سر مختلفة عن القديمة";
+  if(/session|not authenticated|missing/i.test(m)&&/auth/i.test(m))return "انتهت صلاحية الرابط. اطلب رابطًا جديدًا";
+  if(/rate limit|too many|seconds/i.test(m))return "محاولات كثيرة. انتظر قليلًا ثم حاول";
   if(/fetch|network|Failed/i.test(m))return "تعذّر الاتصال بالإنترنت";
   return m||"حدث خطأ";
 }
-function showForm(){$("aload").style.display="none";$("aform").style.display="block";$("aretry").style.display="none";$("alog").disabled=false;$("asig").disabled=false}
+function showForm(){$("arec").style.display="none";$("aload").style.display="none";$("aform").style.display="block";$("aretry").style.display="none";$("alog").disabled=false;$("asig").disabled=false}
 function showFail(t){$("aload").style.display="none";$("aform").style.display="none";msg(t);$("aretry").style.display="block"}
 window.api=function(name,args){
   return sb.rpc(name,args||{}).then(function(r){if(r.error)throw r.error;return r.data});
@@ -1588,17 +1605,52 @@ async function signup(){
     else{msg("تم إنشاء الحساب. افتح رسالة التأكيد في بريدك ثم سجّل الدخول.",true);showForm()}
   }catch(e){msg(tr(e));showForm()}
 }
+function showRec(){$("aload").style.display="none";$("aform").style.display="none";$("aretry").style.display="none";$("arec").style.display="block";$("anpb").disabled=false;msg("")}
+function cleanHash(){try{history.replaceState(null,"",location.pathname+location.search)}catch(e){}}
+async function forgot(){
+  var em=$("aem").value.trim();
+  if(!em){msg("اكتب بريدك في الخانة أعلاه ثم اضغط «نسيت كلمة السر؟»");return}
+  $("afor").disabled=true;msg("");
+  try{
+    var r=await sb.auth.resetPasswordForEmail(em,{redirectTo:location.origin+location.pathname});
+    if(r.error)msg(tr(r.error));
+    else msg("أرسلنا رابط تغيير كلمة السر إلى بريدك. افتح الرسالة (وتفقّد البريد المزعج) واضغط الرابط.",true);
+  }catch(e){msg(tr(e))}
+  setTimeout(function(){$("afor").disabled=false},30000);
+}
+async function saveNewPw(){
+  var a=$("anp").value,b=$("anp2").value;
+  if(a.length<6){msg("كلمة السر يجب ألا تقل عن 6 أحرف");return}
+  if(a!==b){msg("كلمتا السر غير متطابقتين");return}
+  $("anpb").disabled=true;msg("");
+  try{
+    var r=await sb.auth.updateUser({password:a});
+    if(r.error){msg(tr(r.error));$("anpb").disabled=false;return}
+    cleanHash();REC=false;
+    await afterLogin(r.data.user);
+  }catch(e){msg(tr(e));$("anpb").disabled=false}
+}
+window.cloudChangePw=async function(pw){
+  var r=await sb.auth.updateUser({password:pw});
+  if(r.error)throw r.error;
+  return true;
+};
 async function boot(){
   $("aload").style.display="block";$("aform").style.display="none";$("aretry").style.display="none";msg("");
   try{
     if(!window.supabase)throw new Error("nolib");
     if(!sb)sb=window.supabase.createClient(SB_URL,SB_KEY);window.__sb=sb;
     var s=await sb.auth.getSession();PG(2);
+    if(REC){
+      if(s.data&&s.data.session){showRec();return}
+      REC=false;cleanHash();showForm();msg("انتهت صلاحية الرابط أو استُخدم من قبل. اطلب رابطًا جديدًا.");return;
+    }
     if(s.data&&s.data.session)await afterLogin(s.data.session.user);
-    else showForm();
+    else{showForm();if(RECERR){cleanHash();msg("انتهت صلاحية الرابط أو استُخدم من قبل. اطلب رابطًا جديدًا.")}}
   }catch(e){showFail(tr(e))}
 }
-$("alog").onclick=login;$("asig").onclick=signup;$("aretry").onclick=boot;
+$("alog").onclick=login;$("asig").onclick=signup;$("aretry").onclick=boot;$("afor").onclick=forgot;$("anpb").onclick=saveNewPw;
+$("anp2").addEventListener("keydown",function(e){if(e.key==="Enter")saveNewPw()});
 $("apw").addEventListener("keydown",function(e){if(e.key==="Enter")login()});
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else boot();
 })();
@@ -2781,9 +2833,12 @@ function nukeLoad(){
     AC.decodeAudioData(u.buffer,function(buf){NUKESND=buf},function(){});}catch(e){}
 }
 var AC=null,MG=null;
+var SND_VOL=1,SND_MUTE=false;
+try{var _sv=localStorage.getItem("fh_vol"),_sm=localStorage.getItem("fh_mute");if(_sv!==null&&!isNaN(+_sv))SND_VOL=Math.max(0,Math.min(1,+_sv));SND_MUTE=_sm==="1"}catch(e){}
+function sndApply(){if(MG)MG.gain.value=SND_MUTE?0:0.6*SND_VOL}
 function ac(){
   try{
-    if(!AC){AC=new (window.AudioContext||window.webkitAudioContext)();MG=AC.createGain();MG.gain.value=0.6;MG.connect(AC.destination)}
+    if(!AC){AC=new (window.AudioContext||window.webkitAudioContext)();MG=AC.createGain();MG.gain.value=SND_MUTE?0:0.6*SND_VOL;MG.connect(AC.destination)}
     if(AC.state==="suspended")AC.resume();
     nukeLoad();
   }catch(e){AC=null}
@@ -2953,8 +3008,6 @@ function profileCard(tab){
     "<div class='pfnm'><span id='pfn'>"+esc(P.name||"")+"</span><button id='pfed' aria-label='تعديل الاسم'>✎</button></div></div>"+
     "<div class='pfhint'>اضغط على الصورة لتغييرها</div>"+
     "<div class='pfrow'><div class='pfbar lv'><i style='width:"+(pct*0.833)+"%'></i></div><b>Lv."+n(lv)+"</b></div>"+
-    (id?"<div class='pfid'><span dir='ltr'>Id:</span><b id='pfidv'>"+esc(id)+"</b><button id='pfcp'>نسخ</button></div>":"")+
-    (window.cloudLogout?"<button class='pflo' id='pflo' aria-label='تسجيل خروج'>تسجيل خروج</button>":"")+
     "</div><div class='pfpane v'><div class='pfrow'><div class='pfbar vip'><i style='width:"+(vi.pct*0.833)+"%'></i><span class='pfbt'>"+vi.txt+"</span></div><b>Vip."+vi.lv+"</b></div></div><div class='pfpane f'><div class='frg'>"+FRAMEORD.map(function(k){var lk=vi.lv<FRLV[k];return "<div class='frc"+(lk?" lk":"")+(S.frame===k?" eq":"")+"' data-k='"+k+"'>"+frameHtml("",k)+"<div class='frl'>VIP "+FRLV[k]+"</div></div>"}).join("")+"</div></div></div>";
   w.className="wh on fb";
   Array.prototype.forEach.call(w.querySelectorAll(".frc"),function(c){c.onclick=function(){var k=c.getAttribute("data-k");if(vi.lv<FRLV[k]){toast("يفتح عند VIP "+FRLV[k]);return}window.api("set_frame",{p_frame:S.frame===k?null:k}).then(function(st){vipApply(st);save();profileCard("f");toast(S.frame?"تم تفعيل الإطار":"تم إلغاء الإطار")}).catch(srvErr)}});
@@ -2968,8 +3021,6 @@ function profileCard(tab){
     });
   };
   $("pfed").onclick=function(){w.className="wh";profileScreen()};
-  if($("pfcp"))$("pfcp").onclick=function(){copyText(String(id),function(k){toast(k?"تم نسخ المعرّف":"تعذّر النسخ")})};
-  if($("pflo"))$("pflo").onclick=function(){window.cloudLogout()};
 }
 var PM_OPEN=false;
 function profMenu(open){
@@ -2992,16 +3043,46 @@ function copyText(t,cb){
     navigator.clipboard.writeText(t).then(function(){cb(true)}).catch(fallback);
   }else fallback();
 }
+var SPK_SVG="<svg viewBox='0 0 24 24' width='30' height='30' fill='none' stroke='#ffd166' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M4 9v6h4l5 4V5L8 9z' fill='#ffd166' fill-opacity='.25'/><path d='M16.5 8.5a5 5 0 0 1 0 7'/><path d='M19 6a8.5 8.5 0 0 1 0 12'/></svg>";
+var SPK_OFF="<svg viewBox='0 0 24 24' width='30' height='30' fill='none' stroke='#ffd166' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M3 9v6h3.5l4.5 3.6V5.4L6.5 9z' fill='#ffd166' fill-opacity='.25'/><circle cx='16.5' cy='12' r='6' stroke='#ff6a5a' stroke-width='2.2'/><path d='M12.3 16.2l8.4-8.4' stroke='#ff6a5a' stroke-width='2.2'/></svg>";
 function settingsScreen(){
   var w=$("wh"),id=S.pid;
-  w.innerHTML="<header><span>الإعدادات</span><button id='whx' aria-label='إغلاق'>✕</button></header>"+
-    "<div class='sec'>الإعدادات</div><p class='empty'>ستُضاف الإعدادات هنا قريبًا…</p>"+
-    (window.cloudLogout?"<button class='big' id='lgo' style='margin:14px 10px 0;width:calc(100% - 20px)'>تسجيل الخروج</button>":"")+
-    "<div class='setfoot'>"+(id?"<span>معرّفك: <b id='myid' dir='ltr' style='letter-spacing:.12em'>"+id+"</b></span><button id='cpid'>نسخ المعرّف</button>":"<span>رقم التعريف متاح في النسخة الأونلاين.</span>")+"</div>";
-  w.className="wh on";
-  $("whx").onclick=function(){w.className="wh"};
+  POPM="prof";
+  w.innerHTML="<div class='pfp set'>"+
+    "<div class='pfrow' style='gap:12px'><button type='button' class='sndb' id='sndm' aria-label='الصوت'>"+(SND_MUTE?SPK_OFF:SPK_SVG)+"</button>"+
+    "<input type='range' id='sndv' dir='ltr' min='0' max='100' step='5' value='"+Math.round(SND_VOL*100)+"' style='flex:1;min-width:0' aria-label='مستوى الصوت'><b id='sndp' dir='ltr' style='width:52px;text-align:left'>"+Math.round(SND_VOL*100)+"%</b></div>"+
+    (window.cloudChangePw?"<button class='pfbtn' id='cpw'>إعادة تعيين كلمة السر</button>":"")+
+    (window.cloudLogout?"<button class='pflo' id='lgo' aria-label='تسجيل خروج'>تسجيل خروج</button>":"")+
+    (id?"<div class='pfid'><span dir='ltr'>Id:</span><b id='myid'>"+esc(id)+"</b><button id='cpid'>نسخ</button></div>":"")+
+    "</div>";
+  w.className="wh on fb";
   if($("cpid"))$("cpid").onclick=function(){copyText(String(id),function(ok){toast(ok?"تم نسخ المعرّف":"تعذّر النسخ")})};
   if($("lgo"))$("lgo").onclick=function(){window.cloudLogout()};
+  if($("cpw"))$("cpw").onclick=changePwModal;
+  function sndSave(){try{localStorage.setItem("fh_vol",String(SND_VOL));localStorage.setItem("fh_mute",SND_MUTE?"1":"0")}catch(e){}sndApply()}
+  $("sndm").onclick=function(){SND_MUTE=!SND_MUTE;$("sndm").innerHTML=SND_MUTE?SPK_OFF:SPK_SVG;sndSave()};
+  $("sndv").oninput=function(){SND_VOL=(+this.value)/100;$("sndp").textContent=this.value+"%";if(SND_VOL>0&&SND_MUTE){SND_MUTE=false;$("sndm").innerHTML=SPK_SVG}sndSave()};
+  $("sndv").onchange=function(){try{ntChime()}catch(e){}};
+}
+function changePwModal(){
+  admModal("<h3 style='margin:0 0 10px'>تغيير كلمة السر</h3>"+
+    "<input id='cpw1' type='password' placeholder='كلمة السر الجديدة (6 أحرف على الأقل)' autocomplete='new-password' style='width:100%;padding:10px;margin:4px 0;border-radius:8px;border:2px solid #c9a24a;direction:ltr;box-sizing:border-box;font-family:inherit'>"+
+    "<input id='cpw2' type='password' placeholder='أعد كتابة كلمة السر' autocomplete='new-password' style='width:100%;padding:10px;margin:4px 0;border-radius:8px;border:2px solid #c9a24a;direction:ltr;box-sizing:border-box;font-family:inherit'>"+
+    "<div id='cpwm' style='min-height:1.4em;font-weight:700;color:#ff8a7a;margin:6px 0'></div>"+
+    "<div style='display:flex;gap:8px'><button class='big' id='cpwok' style='flex:1'>حفظ</button><button class='big' id='cpwx' style='flex:1;background:#555'>إلغاء</button></div>",function(){
+    var m=$("cpwm");
+    $("cpwx").onclick=closeM;
+    $("cpwok").onclick=function(){
+      var a=$("cpw1").value,b=$("cpw2").value;
+      if(a.length<6){m.textContent="كلمة السر يجب ألا تقل عن 6 أحرف";return}
+      if(a!==b){m.textContent="كلمتا السر غير متطابقتين";return}
+      $("cpwok").disabled=true;m.textContent="";
+      window.cloudChangePw(a).then(function(){closeM();toast("تم تغيير كلمة السر")}).catch(function(e){
+        var t=(e&&e.message)||"";
+        m.textContent=/same password|different from the old/i.test(t)?"اختر كلمة سر مختلفة عن القديمة":/at least 6/i.test(t)?"كلمة السر يجب ألا تقل عن 6 أحرف":"تعذّر التغيير. حاول لاحقًا";
+        $("cpwok").disabled=false});
+    };
+  });
 }
 var NT={seenF:0,seenU:0,tabF:0,tabU:0,lf:null,lu:0,lt:0,seenT:0,tabT:0};
 var NTBUF=null,NTLOAD=false;
@@ -5375,6 +5456,7 @@ function focusBoat(i){
 }
 for(var q=0;q<3;q++)(function(i){$("o"+i).onclick=function(){focusBoat(i)}})(q);
 document.querySelector(".fishbtn").onclick=dexScreen;
+if($("setbtn"))$("setbtn").onclick=settingsScreen;
 var sb=document.querySelectorAll(".shipbtn");
 for(var q=0;q<sb.length;q++)(function(i){sb[i].onclick=function(){if(S.b[i]&&S.b[i].p==="steal")stealGo(i);else menu(i)}})(q);
 var db=document.querySelectorAll(".dock button");
