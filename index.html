@@ -4310,6 +4310,7 @@ function helpPop(title,sub,items,emptyMsg,onPick,slot,back){
   var rs=$("box").querySelectorAll("button[data-k]"),j;
   for(j=0;j<rs.length;j++)rs[j].onclick=function(){onPick(this.getAttribute("data-k"))};
 }
+var HPBUSY=false;
 function helpCrewList(slot){
   var gr={},cur=((V.ships||[])[slot]||{}).crews||[];
   (S.crew||[]).forEach(function(c){if(c.ship===-1&&CREW[c.t]&&!CREW[c.t].solo)gr[c.t]=(gr[c.t]||0)+1});
@@ -4317,11 +4318,13 @@ function helpCrewList(slot){
   helpPop("اختر الطاقم","أضف طاقمًا إلى سفينة "+esc(V.name),items,"لا تملك طواقم غير مستخدمة. تجدها في المتجر.",function(t){
     var C=CREW[t];
     if(cur.some(function(x){return x.crew===t})){toast("لدى هذه السفينة "+C.name+" بالفعل");return}
+    if(HPBUSY)return;HPBUSY=true;
     window.api("help_assign_crew",{p_target:V.user_id,p_slot:slot,p_crew:t}).then(function(res){
+      HPBUSY=false;
       helpApply(res);
       toast("أضفتَ "+C.name+" إلى سفينة "+V.name);
       vHelp(slot);
-    }).catch(srvErr);
+    }).catch(function(e){HPBUSY=false;srvErr(e)});
   },slot);
 }
 function helpRepList(slot){
@@ -4330,11 +4333,13 @@ function helpRepList(slot){
   helpPop("اختر المصلح","أصلح سفينة "+esc(V.name)+" — الصحة "+n(s.hp)+" / "+n(mx),items,"لا تملك مصلحين. تجدهم في المتجر.",function(k){
     var R=REPAIRERS[k];
     if(s.hp>=mx){toast("صحة هذه السفينة كاملة");return}
+    if(HPBUSY)return;HPBUSY=true;
     window.api("help_repair",{p_target:V.user_id,p_slot:slot,p_rep:k}).then(function(res){
+      HPBUSY=false;
       helpApply(res);
       toast("أضاف "+R.name+" "+n(Number(res.gain))+" نقطة صحة لسفينة "+V.name);
       vHelp(slot);
-    }).catch(srvErr);
+    }).catch(function(e){HPBUSY=false;srvErr(e)});
   },slot);
 }
 function vBgGive(slot){
