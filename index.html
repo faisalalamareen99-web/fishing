@@ -1887,7 +1887,21 @@ var els=[],busy=[false,false,false];
 BOATS.forEach(function(B,i){
   var b=document.createElement("button");b.className="boat";b.setAttribute("aria-label",B.name);
   b.innerHTML='<div class="tag hide"></div><div class="bars"><i class="fs"><b></b></i><i class="hp"><b></b></i><span class="hpt"></span><div class="crew"></div><span class="pc"></span></div><img src="'+BOATIMG+'" alt=""><span class="nw"><img class="net" src="'+NETIMG+'" alt=""></span>';
-  b.onclick=function(){menu(i)};
+  b.style.touchAction="pan-y";
+  (function(){var sx=0,sy=0,sid=null,swt=0;
+    b.addEventListener("pointerdown",function(e){sx=e.clientX;sy=e.clientY;sid=e.pointerId});
+    b.addEventListener("pointercancel",function(){sid=null});
+    b.addEventListener("pointerup",function(e){
+      if(sid!==e.pointerId)return;sid=null;
+      var dx=e.clientX-sx,dy=e.clientY-sy;
+      if(Math.abs(dx)<45||Math.abs(dx)<Math.abs(dy)*1.5)return;
+      swt=Date.now();
+      if(busy[i]||!S.b[i].own)return;
+      var idle=S.b[i].p==="idle";
+      if(dx>0&&idle)act(i);else if(dx<0&&!idle)act(i);
+    });
+    b.onclick=function(){if(Date.now()-swt<500)return;menu(i)};
+  })();
   $("stage").appendChild(b);els.push({b:b,t:b.querySelector(".tag"),g:b.querySelector(".fs b"),r:b.querySelector(".hp b"),hpt:b.querySelector(".hpt"),pc:b.querySelector(".pc"),cr:b.querySelector(".crew"),img:b.querySelector("img:not(.net)")});
 });
 var sailLast=0;
