@@ -4416,14 +4416,18 @@ function msgPrompt(uid,name){
     window.api("leave_ocean_msg",{p_target:uid,p_body:t}).then(function(){closeM();toast("تم ترك الرسالة في المحيط");if(V&&V.user_id===uid)visSignLoad()}).catch(function(e){var o=$("omb");if(o)o.disabled=false;srvErr(e)});
   };
 }
+var VBUSY=false,VBT=null;
+function vFree(){VBUSY=false;if(VBT){clearTimeout(VBT);VBT=null}}
 function vFire(slot,k){
   var W=WEAPONS[k];
+  if(VBUSY){toast("انتظر انتهاء الهجوم الحالي");return}
+  VBUSY=true;VBT=setTimeout(function(){VBT=null;VBUSY=false},12000);
   ac();
   window.api("attack",{p_target:V.user_id,p_slot:W.all?null:slot,p_weapon:k}).then(function(res){shLoad();
     if(k==="nuke"||k==="msgbomb")nukePoll();
     renderVisit();
     vAnimate(res,slot,k);
-  }).catch(function(e){srvErr(e);renderVisit()});
+  }).catch(function(e){vFree();srvErr(e);renderVisit()});
 }
 function vAnimate(res,slot,k){
   var W=WEAPONS[k],w=$("wh"),sc=$("scene"),tg=res.target,before={};
@@ -4434,6 +4438,7 @@ function vAnimate(res,slot,k){
     V.ships=tg.ships;V.ruin_until_ms=tg.ruin_until_ms;if(tg.bg!==undefined){V.bg=tg.bg;V.bg_until_ms=tg.bg_until_ms}V.off=Number(tg.server_ms)-Date.now();
     applyServer(res);
     renderVisit();
+    vFree();
     xpFloat(k);
     if(k==="msgbomb")msgPrompt(V.user_id,V.name);
   }
